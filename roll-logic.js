@@ -2,7 +2,7 @@ module.exports = (client) => {
     let users = {}
     let channelIds = []
 
-    let emoji = '\:+1:';
+    let emoji = '👍';
 
     const whichRollIsHigher = (first, second) => {
         return second - first
