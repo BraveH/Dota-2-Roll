@@ -2,11 +2,7 @@ module.exports = (client) => {
     let users = {}
     let channelIds = []
 
-    const getEmoji = (emojiName) =>
-        client.emojis.cache.find((emoji) => emoji.name === emojiName)
-
-    let emojiName = '+1'
-    let emoji = getEmoji(emojiName);
+    let emoji = '\:+1:';
 
     const whichRollIsHigher = (first, second) => {
         return second - first
@@ -47,7 +43,6 @@ module.exports = (client) => {
                 channel.send('Add a reaction to join the queue then type !completeRoll').then((message) => {
                     channelIds.push(channelId)
                     users[channelId] = []
-                    console.log(emoji)
                     message.react(emoji)
                 })
             }
@@ -74,9 +69,9 @@ module.exports = (client) => {
             return
         }
 
-        const emoji = reaction._emoji.name
-
-        if (emoji === emojiName) {
+        const emojiTemp = reaction._emoji.name
+        console.log(emojiTemp)
+        if (emojiTemp === emoji) {
             if (add) {
                 users[channelId].push(user.id)
             } else {
