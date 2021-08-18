@@ -60,7 +60,8 @@ module.exports = (client) => {
             console.log("sortedRolls: ", sortedRolls);
             for(let i = 0; i < sortedRolls.length; i++) {
                 let pair = sortedRolls[i];
-                rollsText += `${getNickname(pair[0], message.guild)} = ${pair[1]}\n`;
+                let nickname = await getNickname(pair[0], message.guild);
+                rollsText += `${nickname} = ${pair[1]}\n`;
             }
 
             channel.send(rollsText);
