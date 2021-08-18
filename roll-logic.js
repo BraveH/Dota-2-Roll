@@ -23,7 +23,7 @@ module.exports = (client) => {
     }
 
     const getNickname = (userId, guild) => {
-        const member = guild.members.cache.find((member) => member.id === userId)
+        const member = guild.members.find((member) => member.id === userId)
         if(member)
             return member.nickname || member.displayName;
         else
