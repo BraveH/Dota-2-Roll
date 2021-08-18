@@ -128,7 +128,7 @@ module.exports = {
                     channel.send('Rule not found.');
                 }
             }
-            else if(content.startsWith('!checkRule') && splitContent.length === 2) {
+            else if(splitContent.length === 2 && splitContent[0] === '!checkRule') {
                 let filtered = getRulesForNumber(splitContent[1]);
                 if(filtered.length > 0) {
                     let text = filtered.length === 1 ? '' : 'The rules found are:\n';
@@ -141,7 +141,8 @@ module.exports = {
                     channel.send('No rules found.');
                 }
             }
-            else if(content.startsWith('!checkRuleById') && splitContent.length === 2) {let id = splitContent[1];
+            else if(splitContent.length === 2 && splitContent[0] === '!checkRuleById') {
+                let id = splitContent[1];
                 if(rules[id]) {
                     channel.send(rules[id].display());
                 } else {
