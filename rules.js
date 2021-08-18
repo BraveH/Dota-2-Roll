@@ -134,7 +134,7 @@ module.exports = {
                     let text = filtered.length === 1 ? '' : 'The rules found are:\n';
                     let length = filtered.length;
                     for(let i = 0; i < length; i++) {
-                        text += filtered.display() + (i === length - 1 ? '' : '\n');
+                        text += filtered[i].display() + (i === length - 1 ? '' : '\n');
                     }
                     channel.send(text);
                 } else {
