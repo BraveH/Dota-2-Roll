@@ -59,6 +59,8 @@ module.exports = (client) => {
                 rollsText += `${getNickname(pair[0], message.channel.guild)} = ${pair[1]}\n`;
             }
 
+            channel.send(rollsText);
+
             channelIds = channelIds.filter(c => c !== channelId)
             delete users[channelId]
         }
