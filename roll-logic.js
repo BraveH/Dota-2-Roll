@@ -1,11 +1,19 @@
+const {getRules, applyRule, setup} = require('./rules')
+
 module.exports = (client) => {
+    setup(client);
+
     let users = {}
     let channelIds = []
 
     let emoji = '👍';
 
     const whichRollIsHigher = (first, second) => {
-        return second - first
+        let rules = getRules(first,second);
+        if(rules.length === 0)
+            return first - second; // sort descending
+        else
+            return applyRule(first, second);
     }
 
     const sortRolls = (rolls) => {
@@ -51,18 +59,16 @@ module.exports = (client) => {
             let rollsText = 'The final roll results are:\n\n'
             let rolls = {}
             let userIds = users[channelId] || [];
-            console.log("users: ", userIds);
             for(let i = 0; i < userIds.length; i++) {
                 let user = userIds[i]
                 rolls[user] = Math.floor(Math.random() * 100) + 1 // between 1->100 inclusive
             }
 
             let sortedRolls = sortRolls(rolls);
-            console.log("sortedRolls: ", sortedRolls);
             for(let i = 0; i < sortedRolls.length; i++) {
                 let pair = sortedRolls[i];
                 let nickname = await getNickname(pair[0], message.guild);
-                rollsText += `${nickname} = ${pair[1]}\n`;
+                rollsText += `${i} - ${nickname} = ${pair[1]}\n`;
             }
 
             channel.send(rollsText);
