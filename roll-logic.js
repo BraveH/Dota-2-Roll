@@ -89,7 +89,7 @@ module.exports = (client) => {
 
                 let roll = pair[1];
                 let descriptions = getDescriptions(roll);
-                rollsText += `${i} - ${nickname} = ${roll}${descriptions.length > 0 ? ' | ' + descriptions.join(', ') : ''}` + (i === length - 1 ? '' : '\n');
+                rollsText += `${i+1} - ${nickname} = ${roll}${descriptions.length > 0 ? ' | ' + descriptions.join(', ') : ''}` + (i === length - 1 ? '' : '\n');
             }
             if(flipCount > 0)
                 rollsText += `\n\nTable flipped ${flipCount} time${flipCount > 1 ? 's' : ''}`

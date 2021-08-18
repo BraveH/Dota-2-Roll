@@ -89,11 +89,11 @@ module.exports = {
     applyRule: (firstNumber, secondNumber, rulesObtained) => {
         let firstNumberRules = rulesObtained.filter(r => (r.numberOne === firstNumber || r.numberTwo === firstNumber) &&
             (r.numberOne === undefined || r.numberTwo === undefined));
-        const numOneGreatest = firstNumberRules.find(r.type === Rule.TYPES.BEST) !== undefined;
+        const numOneGreatest = firstNumberRules.find(r => r.type === Rule.TYPES.BEST) !== undefined;
 
         let secondNumberRules = rulesObtained.filter(r => !(r.numberOne === undefined || r.numberTwo === undefined) &&
             (r.numberOne === secondNumber || r.numberTwo === secondNumber));
-        const numTwoGreatest = secondNumberRules.find(r.type === Rule.TYPES.BEST) !== undefined;
+        const numTwoGreatest = secondNumberRules.find(r =>r.type === Rule.TYPES.BEST) !== undefined;
 
         let bothNumberRules = rulesObtained.filter(r => (r.numberOne === firstNumber || r.numberTwo === firstNumber) &&
             (r.numberOne === secondNumber || r.numberTwo === secondNumber));
@@ -162,8 +162,7 @@ module.exports = {
                 } else if(splitContent.length === 3 && splitContent[1] === 'reroll') {
                     rules[newUUID] = new Rule(Rule.TYPES.REROLL, splitContent[2]);
                 } else {
-                    channel.send('Invalid syntax.\n!addRule greater number number\n!addRule equals number number\n!addRule greatest number\n'+
-                        +'!addRule flip number\n!addRule reroll number\n!addRule text number DESCRIPTION');
+                    channel.send('Invalid syntax.\n!addRule greater number number\n!addRule equals number number\n!addRule greatest number\n!addRule flip number\n!addRule reroll number\n!addRule text number DESCRIPTION');
                     return;
                 }
                 channel.send(`Rule added. (ID = ${newUUID})`);
