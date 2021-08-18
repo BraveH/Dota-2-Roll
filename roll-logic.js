@@ -23,7 +23,7 @@ module.exports = (client) => {
     }
 
     const getNickname = async (userId, guild) => {
-        const member = await guild.members.fetch(userId)
+        const member = guild.members.cache.get(userId) || await guild.members.fetch(userId)
         if(member)
             return member.nickname || member.displayName;
         else
@@ -52,7 +52,8 @@ module.exports = (client) => {
             let rolls = {}
             let userIds = users[channelId] || [];
             console.log("users: ", userIds);
-            for(let user in userIds) {
+            for(let i = 0; i < userIds.length; i++) {
+                let user = userIds[i]
                 rolls[user] = Math.floor(Math.random() * 100) + 1 // between 1->100 inclusive
             }
 
