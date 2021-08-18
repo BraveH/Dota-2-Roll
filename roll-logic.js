@@ -22,8 +22,8 @@ module.exports = (client) => {
         return items;
     }
 
-    const getNickname = (userId, guild) => {
-        const member = guild.members.get(userId)
+    const getNickname = async (userId, guild) => {
+        const member = await guild.members.fetch(userId)
         if(member)
             return member.nickname || member.displayName;
         else
