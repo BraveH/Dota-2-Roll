@@ -50,8 +50,8 @@ module.exports = (client) => {
         else if(content === '!completeRoll') {
             let rollsText = 'The final roll results are:\n\n'
             let rolls = {}
-            console.log("users: ", users[channel]);
-            for(let user in users[channel]) {
+            console.log("users: ", users[channelId]);
+            for(let user in users[channelId]) {
                 rolls[user] = Math.floor(Math.random() * 100) + 1 // between 1->100 inclusive
             }
 
