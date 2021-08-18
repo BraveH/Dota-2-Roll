@@ -25,7 +25,7 @@ module.exports = (client) => {
     const getNickname = (userId, guild) => {
         const member = guild.members.cache.find((member) => member.id === userId)
         if(member)
-            return member.displayName;
+            return member.nickname || member.displayName;
         else
             return userId;
     }
@@ -50,15 +50,16 @@ module.exports = (client) => {
         else if(content === '!completeRoll') {
             let rollsText = 'The final roll results are:\n\n'
             let rolls = {}
-            console.log("users: ", users[channelId]);
-            for(let user in users[channelId]) {
+            let userIds = users[channelId] || [];
+            console.log("users: ", userIds);
+            for(let user in userIds) {
                 rolls[user] = Math.floor(Math.random() * 100) + 1 // between 1->100 inclusive
             }
 
             let sortedRolls = sortRolls(rolls);
             console.log("sortedRolls: ", sortedRolls);
             for(let pair in sortedRolls) {
-                rollsText += `${getNickname(pair[0], message.channel.guild)} = ${pair[1]}\n`;
+                rollsText += `${getNickname(pair[0], message.guild)} = ${pair[1]}\n`;
             }
 
             channel.send(rollsText);
