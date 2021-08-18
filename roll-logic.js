@@ -58,7 +58,8 @@ module.exports = (client) => {
 
             let sortedRolls = sortRolls(rolls);
             console.log("sortedRolls: ", sortedRolls);
-            for(let pair in sortedRolls) {
+            for(let i = 0; i < sortedRolls.length; i++) {
+                let pair = sortedRolls[i];
                 rollsText += `${getNickname(pair[0], message.guild)} = ${pair[1]}\n`;
             }
 
