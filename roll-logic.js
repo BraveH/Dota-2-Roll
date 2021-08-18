@@ -1,4 +1,4 @@
-const {getRules, applyRule, setup} = require('./rules')
+const {getRules, applyRule, setup, flips, getDescriptions, needsReroll} = require('./rules')
 
 module.exports = (client) => {
     setup(client);
@@ -12,8 +12,9 @@ module.exports = (client) => {
         let rules = getRules(first,second);
         if(rules.length === 0)
             return first - second; // sort descending
-        else
-            return applyRule(first, second);
+        else {
+            return applyRule(first, second, rules);
+        }
     }
 
     const sortRolls = (rolls) => {
@@ -27,7 +28,13 @@ module.exports = (client) => {
             return whichRollIsHigher(first[1], second[1]);
         });
 
-        return items;
+        let flipCount = 0;
+        for(let i = 0; i < items.length; i++) {
+            if(flips(items[i]))
+                flipCount += 1;
+        }
+
+        return [items, flipCount];
     }
 
     const getNickname = async (userId, guild) => {
@@ -61,15 +68,31 @@ module.exports = (client) => {
             let userIds = users[channelId] || [];
             for(let i = 0; i < userIds.length; i++) {
                 let user = userIds[i]
-                rolls[user] = Math.floor(Math.random() * 100) + 1 // between 1->100 inclusive
+                let roll;
+                while(true) {
+                    roll = Math.floor(Math.random() * 100) + 1;
+                    if(!needsReroll(roll))
+                        break;
+                }
+                rolls[user] = roll // between 1->100 inclusive
             }
 
-            let sortedRolls = sortRolls(rolls);
-            for(let i = 0; i < sortedRolls.length; i++) {
-                let pair = sortedRolls[i];
+            let [sortedRolls, flipCount] = sortRolls(rolls);
+            let length = sortedRolls.length;
+            for(let i = 0; i < length; i++) {
+                let pair;
+                if(flipCount % 2 === 0)
+                    pair = sortedRolls[i];
+                else
+                    pair = sortedRolls[length - 1 - i];
                 let nickname = await getNickname(pair[0], message.guild);
-                rollsText += `${i} - ${nickname} = ${pair[1]}\n`;
+
+                let roll = pair[1];
+                let descriptions = getDescriptions(roll);
+                rollsText += `${i} - ${nickname} = ${roll}${descriptions.length > 0 ? ' | ' + descriptions.join(', ') : ''}` + (i === length - 1 ? '' : '\n');
             }
+            if(flipCount > 0)
+                rollsText += `\n\nTable flipped ${flipCount} time${flipCount > 1 ? 's' : ''}`
 
             channel.send(rollsText);
 

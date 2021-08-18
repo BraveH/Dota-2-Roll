@@ -1,6 +1,6 @@
 const { v4: uuid } = require('uuid');
 
-class Rule {
+export class Rule {
     static TYPES = {
         BETTER: "better",
         BEST: "best",
@@ -49,7 +49,19 @@ const getRulesForNumber = (number) => {
     return Object.values(rules).filter(rule => rule.numberOne === number || rule.numberTwo === number);
 }
 
+const descendingSort = (firstNumber, secondNumber) => {
+    return firstNumber - secondNumber
+}
+
 module.exports = {
+    getDescriptions: (number) => {
+        return getRulesForNumber(number).filter(r => r.type === Rule.TYPES.TEXT).map(r => r.description);
+    },
+
+    flips: (number) => {
+        return getRulesForNumber(number).find(r => r.type === Rule.TYPES.FLIPS) !== undefined;
+    },
+
     getRules: (firstNumber, secondNumber) => {
         const result = []
 
@@ -74,8 +86,57 @@ module.exports = {
         return result;
     },
 
-    applyRule: (firstNumber, secondNumber) => {
+    applyRule: (firstNumber, secondNumber, rulesObtained) => {
+        let firstNumberRules = rulesObtained.filter(r => (r.numberOne === firstNumber || r.numberTwo === firstNumber) &&
+            (r.numberOne === undefined || r.numberTwo === undefined));
+        const numOneGreatest = firstNumberRules.find(r.type === Rule.TYPES.BEST) !== undefined;
 
+        let secondNumberRules = rulesObtained.filter(r => !(r.numberOne === undefined || r.numberTwo === undefined) &&
+            (r.numberOne === secondNumber || r.numberTwo === secondNumber));
+        const numTwoGreatest = secondNumberRules.find(r.type === Rule.TYPES.BEST) !== undefined;
+
+        let bothNumberRules = rulesObtained.filter(r => (r.numberOne === firstNumber || r.numberTwo === firstNumber) &&
+            (r.numberOne === secondNumber || r.numberTwo === secondNumber));
+        let betterRules = bothNumberRules.filter(r => r.type === Rule.TYPES.BETTER);
+        let equalRules = bothNumberRules.filter(r => r.type === Rule.TYPES.EQUAL);
+
+        if(numOneGreatest && numTwoGreatest && firstNumber !== secondNumber)
+            return descendingSort(firstNumber, secondNumber)
+
+        if(numOneGreatest || numTwoGreatest && firstNumber !== secondNumber && equalRules.length > 0)
+            return descendingSort(firstNumber, secondNumber)
+
+        if(numOneGreatest || numTwoGreatest && betterRules.length > 0)
+            return descendingSort(firstNumber, secondNumber)
+
+        if(numOneGreatest)
+            return 1;
+        if(numTwoGreatest)
+            return -1;
+
+        if(equalRules.length > 0 && betterRules.length > 0)
+            return descendingSort(firstNumber, secondNumber)
+
+        if(equalRules.length > 0)
+            return 0;
+
+        if(betterRules.length > 0) {
+            let oneBetter = betterRules.find(r => r.numberOne === firstNumber) !== undefined
+            let twoBetter = betterRules.find(r => r.numberOne === secondNumber) !== undefined
+
+            if(oneBetter && twoBetter)
+                return descendingSort(firstNumber, secondNumber)
+            else if(oneBetter)
+                return 1
+            else
+                return -1;
+        }
+
+        return descendingSort(firstNumber, secondNumber)
+    },
+
+    needsReroll: (number) => {
+        return getRulesForNumber(number).filter(r => r.type === Rule.TYPES.REROLL).length > 0;
     },
 
     setup: (client) => {
