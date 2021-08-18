@@ -44,6 +44,7 @@ module.exports = (client) => {
                 channel.send('Add a reaction to join the queue then type !completeRoll').then((message) => {
                     channelIds.push(channelId)
                     users[channelId] = []
+                    client.emojis.cache.forEach(e => console.log(e.name))
                     message.react(getEmoji('+1'))
                 })
             }
