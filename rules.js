@@ -156,7 +156,7 @@ module.exports = {
                 } else if(splitContent.length === 3 && splitContent[1] === 'greatest') {
                     rules[newUUID] = new Rule(Rule.TYPES.BEST, splitContent[2]);
                 } else if(splitContent.length > 4 && splitContent[1] === 'text') {
-                    rules[newUUID] = new Rule(Rule.TYPES.TEXT, splitContent[2], undefined, splitContent[3]);
+                    rules[newUUID] = new Rule(Rule.TYPES.TEXT, splitContent[2], undefined, splitContent.slice(2).join(' '));
                 } else if(splitContent.length === 3 && splitContent[1] === 'flip') {
                     rules[newUUID] = new Rule(Rule.TYPES.FLIPS, splitContent[2]);
                 } else if(splitContent.length === 3 && splitContent[1] === 'reroll') {
