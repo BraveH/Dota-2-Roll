@@ -1,9 +1,11 @@
 const Discord = require('discord.js')
 const client = new Discord.Client()
-const config = require('./config.json')
+const rollLogic = require('./roll-logic')
 
 client.on('ready', () => {
   console.log('The client is ready!')
+
+  rollLogic(client)
 })
 
-client.login(config.token)
+client.login(process.env.DISCORD_TOKEN)

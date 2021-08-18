@@ -1,7 +1,7 @@
 {
-  "name": "1-Creating-The-Bot",
+  "name": "dota-2-roll",
   "version": "1.0.0",
-  "description": "",
+  "description": "Dota 2 Roll Bot",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
