@@ -1,13 +1,8 @@
 module.exports = (client) => {
     let users = {}
     let channelIds = []
-    let members = []
 
     let emoji = '👍';
-
-    client.guilds.members.then(mems => {
-        members = mems
-    })
 
     const whichRollIsHigher = (first, second) => {
         return second - first
@@ -27,8 +22,8 @@ module.exports = (client) => {
         return items;
     }
 
-    const getNickname = (userId) => {
-        const member = members.find((member) => member.id === userId)
+    const getNickname = (userId, guild) => {
+        const member = guild.members.get(userId)
         if(member)
             return member.nickname || member.displayName;
         else
@@ -65,7 +60,7 @@ module.exports = (client) => {
             console.log("sortedRolls: ", sortedRolls);
             for(let i = 0; i < sortedRolls.length; i++) {
                 let pair = sortedRolls[i];
-                rollsText += `${getNickname(pair[0])} = ${pair[1]}\n`;
+                rollsText += `${getNickname(pair[0], message.guild)} = ${pair[1]}\n`;
             }
 
             channel.send(rollsText);
