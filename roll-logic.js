@@ -50,11 +50,13 @@ module.exports = (client) => {
         else if(content === '!completeRoll') {
             let rollsText = 'The final roll results are:\n\n'
             let rolls = {}
+            console.log("users: ", users[channel]);
             for(let user in users[channel]) {
                 rolls[user] = Math.floor(Math.random() * 100) + 1 // between 1->100 inclusive
             }
 
             let sortedRolls = sortRolls(rolls);
+            console.log("sortedRolls: ", sortedRolls);
             for(let pair in sortedRolls) {
                 rollsText += `${getNickname(pair[0], message.channel.guild)} = ${pair[1]}\n`;
             }
@@ -72,7 +74,6 @@ module.exports = (client) => {
         }
 
         const emojiTemp = reaction._emoji.name
-        console.log(emojiTemp)
         if (emojiTemp === emoji) {
             if (add) {
                 users[channelId].push(user.id)
