@@ -40,7 +40,10 @@ client.on('ready', () => {
 
           'Check Rules:\n' +
           '\t!checkRule number\n' +
-          '\t!checkRuleById ID'
+          '\t!checkRuleById ID\n\n' +
+
+          'List Rules:\n' +
+          '\t!listRules'
       );
     }
   })
