@@ -15,7 +15,7 @@ class Rule {
         REROLL: "reroll"
     }
 
-    constructor(id, type, numberOne, numberTwo, description) {
+    constructor(type, numberOne, numberTwo, description) {
         this.type = type;
         this.numberOne = numberOne;
         this.numberTwo = numberTwo;
