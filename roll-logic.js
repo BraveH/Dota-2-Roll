@@ -1,23 +1,30 @@
 const {getRules, applyRule, setup, flips, getDescriptions, needsReroll} = require('./rules')
 
-module.exports = (client) => {
-    setup(client);
+module.exports = (client, dbClient) => {
+    setup(client, dbClient);
 
     let users = {}
+    let rulesUsed = {}
     let channelIds = []
 
     let emoji = '👍';
 
-    const whichRollIsHigher = (first, second) => {
+    const whichRollIsHigher = (first, second, channelId) => {
         let rules = getRules(first,second);
         if(rules.length === 0)
             return first - second; // sort descending
         else {
-            return applyRule(first, second, rules);
+            let [sortResult, ruleUsed] = applyRule(first, second, rules);
+
+            if(ruleUsed) {
+                rulesUsed[channelId] = [...(rulesUsed[channelId] || []), ruleUsed];
+            }
+
+            return sortResult;
         }
     }
 
-    const sortRolls = (rolls) => {
+    const sortRolls = (rolls, channelId) => {
         // Create items array
         let items = Object.keys(rolls).map(function(key) {
             return [key, rolls[key]];
@@ -25,7 +32,7 @@ module.exports = (client) => {
 
         // Sort the array based on the second element
         items.sort(function(first, second) {
-            return whichRollIsHigher(first[1], second[1]);
+            return whichRollIsHigher(first[1], second[1], channelId);
         });
 
         let flipCount = 0;
@@ -77,7 +84,7 @@ module.exports = (client) => {
                 rolls[user] = roll // between 1->100 inclusive
             }
 
-            let [sortedRolls, flipCount] = sortRolls(rolls);
+            let [sortedRolls, flipCount] = sortRolls(rolls, channelId);
             let length = sortedRolls.length;
             for(let i = 0; i < length; i++) {
                 let pair;
@@ -93,6 +100,15 @@ module.exports = (client) => {
             }
             if(flipCount > 0)
                 rollsText += `\n\nTable flipped ${flipCount} time${flipCount > 1 ? 's' : ''}`
+            if(rulesUsed[channelId]) {
+                let r = rulesUsed[channelId]
+                let rulesUsedLength = r.length;
+                rollsText += `\n\nRule${rulesUsedLength > 1 ? 's' : ''} Used:\n`
+                for(let i = 0; i < rulesUsedLength; i++) {
+                    rollsText += `${r[i]}` + (i === rulesUsedLength - 1 ? '' : '\n');
+                }
+                delete rulesUsed[channelId];
+            }
 
             channel.send(rollsText);
 

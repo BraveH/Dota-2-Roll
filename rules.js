@@ -1,5 +1,9 @@
 const { v4: uuid } = require('uuid');
 
+const INSERT_SQL = 'INSERT INTO RULES(id, type, numberOne, numberTwo, description) VALUES($1, $2, $3, $4, $5)';
+const SELECT_SQL = 'SELECT * FROM RULES';
+let db = undefined;
+
 class Rule {
     static TYPES = {
         BETTER: "better",
@@ -10,7 +14,7 @@ class Rule {
         REROLL: "reroll"
     }
 
-    constructor(type, numberOne, numberTwo, description) {
+    constructor(id, type, numberOne, numberTwo, description) {
         this.type = type;
         this.numberOne = numberOne;
         this.numberTwo = numberTwo;
@@ -51,6 +55,29 @@ const getRulesForNumber = (number) => {
 
 const descendingSort = (firstNumber, secondNumber) => {
     return firstNumber - secondNumber
+}
+
+const addRule = (id, type, numberOne, numberTwo, description) => {
+    const rule = new Rule(type, numberOne, numberTwo, description);
+    return db.query(INSERT_SQL, [id, type, numberOne, numberTwo, description]).then(res => {
+        return Promise.resolve(rule);
+    }).catch(e => {
+        console.error(e);
+        return Promise.resolve(rule)
+    })
+}
+
+const loadRules = () => {
+    db.query(SELECT_SQL).then(res => {
+        if(res && res.rows) {
+            for(let i = 0; i < res.rows.length; i++) {
+                let row = res.rows[i];
+                rules[row.id] = new Rule(row.type, row.numberOne, row.numberTwo, row.description);
+            }
+        }
+    }).catch(e => {
+        console.error(e);
+    })
 }
 
 module.exports = {
@@ -101,45 +128,48 @@ module.exports = {
         let equalRules = bothNumberRules.filter(r => r.type === Rule.TYPES.EQUAL);
 
         if(numOneGreatest && numTwoGreatest && firstNumber !== secondNumber)
-            return descendingSort(firstNumber, secondNumber)
+            return [descendingSort(firstNumber, secondNumber), undefined]
 
         if(numOneGreatest || numTwoGreatest && firstNumber !== secondNumber && equalRules.length > 0)
-            return descendingSort(firstNumber, secondNumber)
+            return [descendingSort(firstNumber, secondNumber), undefined]
 
         if(numOneGreatest || numTwoGreatest && betterRules.length > 0)
-            return descendingSort(firstNumber, secondNumber)
+            return [descendingSort(firstNumber, secondNumber), undefined]
 
         if(numOneGreatest)
-            return 1;
+            return [1, `${firstNumber} is the greatest`];
         if(numTwoGreatest)
-            return -1;
+            return [-1, `${secondNumber} is the greatest`];
 
         if(equalRules.length > 0 && betterRules.length > 0)
-            return descendingSort(firstNumber, secondNumber)
+            return [descendingSort(firstNumber, secondNumber), undefined]
 
         if(equalRules.length > 0)
-            return 0;
+            return [0, `${firstNumber} = ${secondNumber}`];
 
         if(betterRules.length > 0) {
             let oneBetter = betterRules.find(r => r.numberOne === firstNumber) !== undefined
             let twoBetter = betterRules.find(r => r.numberOne === secondNumber) !== undefined
 
             if(oneBetter && twoBetter)
-                return descendingSort(firstNumber, secondNumber)
+                return [descendingSort(firstNumber, secondNumber), undefined]
             else if(oneBetter)
-                return 1
+                return [1, `${firstNumber} > ${secondNumber}`];
             else
-                return -1;
+                return [-1, `${secondNumber} > ${firstNumber}`];
         }
 
-        return descendingSort(firstNumber, secondNumber)
+        return [descendingSort(firstNumber, secondNumber), undefined]
     },
 
     needsReroll: (number) => {
         return getRulesForNumber(number).filter(r => r.type === Rule.TYPES.REROLL).length > 0;
     },
 
-    setup: (client) => {
+    setup: (client, dbClient) => {
+        db = dbClient;
+        loadRules();
+
         client.on('message', async (message) => {
             let {content} = message
             content = content.trim();
@@ -150,17 +180,17 @@ module.exports = {
             if (content.startsWith('!addRule')) {
                 const newUUID = uuid();
                 if(splitContent.length === 4 && splitContent[1] === 'greater') {
-                    rules[newUUID] = new Rule(Rule.TYPES.BETTER, splitContent[2], splitContent[3]);
+                    addRule(newUUID, Rule.TYPES.BETTER, splitContent[2], splitContent[3]).then(r => rules[newUUID] = r)
                 } else if(splitContent.length === 4 && splitContent[1] === 'equals') {
-                    rules[newUUID] = new Rule(Rule.TYPES.EQUAL, splitContent[2], splitContent[3]);
+                    addRule(newUUID, Rule.TYPES.EQUAL, splitContent[2], splitContent[3]).then(r => rules[newUUID] = r)
                 } else if(splitContent.length === 3 && splitContent[1] === 'greatest') {
-                    rules[newUUID] = new Rule(Rule.TYPES.BEST, splitContent[2]);
+                    addRule(newUUID, Rule.TYPES.BEST, splitContent[2]).then(r => rules[newUUID] = r)
                 } else if(splitContent.length > 4 && splitContent[1] === 'text') {
-                    rules[newUUID] = new Rule(Rule.TYPES.TEXT, splitContent[2], undefined, splitContent.slice(2).join(' '));
+                    addRule(newUUID, Rule.TYPES.TEXT, splitContent[2], undefined, splitContent.slice(2).join(' ')).then(r => rules[newUUID] = r)
                 } else if(splitContent.length === 3 && splitContent[1] === 'flip') {
-                    rules[newUUID] = new Rule(Rule.TYPES.FLIPS, splitContent[2]);
+                    addRule(newUUID, Rule.TYPES.FLIPS, splitContent[2]).then(r => rules[newUUID] = r)
                 } else if(splitContent.length === 3 && splitContent[1] === 'reroll') {
-                    rules[newUUID] = new Rule(Rule.TYPES.REROLL, splitContent[2]);
+                    addRule(newUUID, Rule.TYPES.REROLL, splitContent[2]).then(r => rules[newUUID] = r)
                 } else {
                     channel.send('Invalid syntax.\n!addRule greater number number\n!addRule equals number number\n!addRule greatest number\n!addRule flip number\n!addRule reroll number\n!addRule text number DESCRIPTION');
                     return;

@@ -1,6 +1,16 @@
 const Discord = require('discord.js')
 const client = new Discord.Client()
 const rollLogic = require('./roll-logic')
+const { Client } = require('pg');
+
+const dbClient = new Client({
+  connectionString: process.env.DATABASE_URL,
+  ssl: {
+    rejectUnauthorized: false
+  }
+});
+
+dbClient.connect();
 
 client.on('ready', () => {
   console.log('The client is ready!')
@@ -35,7 +45,7 @@ client.on('ready', () => {
     }
   })
 
-  rollLogic(client)
+  rollLogic(client, dbClient)
 })
 
 client.login(process.env.DISCORD_TOKEN)
