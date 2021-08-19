@@ -142,8 +142,11 @@ module.exports = (client, dbClient) => {
 
         const emojiTemp = reaction._emoji.name
         let message = reaction.message;
-        console.log(emojiTemp, message.author.id, channelIds.includes(channelId));
-        if(messageInChannel[channelId] && message.id === messageInChannel[channelId]) {
+        let containsChannel = channelIds.includes(channelId);
+        let messageIdInChannel = messageInChannel[channelId];
+        let id = message.id;
+        console.log(emojiTemp, message.author.id, containsChannel, messageIdInChannel, id);
+        if(messageIdInChannel && id === messageIdInChannel && containsChannel) {
             if (emojiTemp === emoji) {
                 if (add) {
                     users[channelId].push(user.id)
@@ -154,7 +157,7 @@ module.exports = (client, dbClient) => {
                 const channel = await client.channels.fetch(channelId);
                 await completeRoll(channelId, message.guild, channel);
             }
-        } else if (emojiTemp === refreshEmoji && message.author.id === BOTID && !channelIds.includes(channelId)) {
+        } else if (emojiTemp === refreshEmoji && message.author.id === BOTID && !containsChannel) {
             const channel = await client.channels.fetch(channelId);
             await startRoll(channel, channelId);
         }
@@ -162,15 +165,11 @@ module.exports = (client, dbClient) => {
 
     client.on('messageReactionAdd', async (reaction, user) => {
         let channelId = reaction.message.channel.id;
-        if (channelIds.includes(channelId)) {
-            await handleReaction(reaction, user, true, channelId)
-        }
+        await handleReaction(reaction, user, true, channelId)
     })
 
     client.on('messageReactionRemove', async (reaction, user) => {
         let channelId = reaction.message.channel.id;
-        if (channelIds.includes(channelId)) {
-            await handleReaction(reaction, user, false, channelId)
-        }
+        await handleReaction(reaction, user, false, channelId)
     })
 }
