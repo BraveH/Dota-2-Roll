@@ -259,7 +259,7 @@ module.exports = {
                 let length = keys.length;
                 for(let i = 0; i < length; i++) {
                     let id = keys[i];
-                    text += `${rules[id].display()}[ID = ${id}]` + (i === length - 1 ? '' : '\n');
+                    text += `${rules[id].display()}\t\`[ID = ${id}]\`` + (i === length - 1 ? '' : '\n');
                 }
                 channel.send(text);
             }
