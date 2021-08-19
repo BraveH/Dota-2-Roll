@@ -127,7 +127,7 @@ module.exports = (client, dbClient) => {
         }
     })
 
-    const handleReaction = (reaction, user, add, channelId) => {
+    const handleReaction = async (reaction, user, add, channelId) => {
         if (user.id === '877352185409724486') {
             return
         }
@@ -143,22 +143,22 @@ module.exports = (client, dbClient) => {
                 }
             } else if (emojiTemp === stopEmoji) {
                 const channel = client.channels.fetch(channelId)
-                completeRoll(channelId, message.guild, channel);
+                await completeRoll(channelId, message.guild, channel);
             }
         }
     }
 
-    client.on('messageReactionAdd', (reaction, user) => {
+    client.on('messageReactionAdd', async (reaction, user) => {
         let channelId = reaction.message.channel.id;
         if (channelIds.includes(channelId)) {
-            handleReaction(reaction, user, true, channelId)
+            await handleReaction(reaction, user, true, channelId)
         }
     })
 
-    client.on('messageReactionRemove', (reaction, user) => {
+    client.on('messageReactionRemove', async (reaction, user) => {
         let channelId = reaction.message.channel.id;
         if (channelIds.includes(channelId)) {
-            handleReaction(reaction, user, false, channelId)
+            await handleReaction(reaction, user, false, channelId)
         }
     })
 }
