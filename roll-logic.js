@@ -75,7 +75,7 @@ module.exports = (client, dbClient) => {
             let user = userIds[i]
             let roll;
             while(true) {
-                roll = 50;//Math.floor(Math.random() * 100) + 1;
+                roll = Math.floor(Math.random() * 100) + 1; //50;
                 if(!needsReroll(roll))
                     break;
             }
@@ -109,10 +109,11 @@ module.exports = (client, dbClient) => {
         }
 
         channel.send(rollsText).then(message => {
-            message.react(refreshEmoji);
             channelIds = channelIds.filter(c => c !== channelId)
             delete users[channelId]
             delete messageInChannel[channelId]
+
+            message.react(refreshEmoji);
         });
     }
 
@@ -141,6 +142,7 @@ module.exports = (client, dbClient) => {
 
         const emojiTemp = reaction._emoji.name
         let message = reaction.message;
+        console.log(emojiTemp, message.author.id, channelIds.includes(channelId));
         if(messageInChannel[channelId] && message.id === messageInChannel[channelId]) {
             if (emojiTemp === emoji) {
                 if (add) {
