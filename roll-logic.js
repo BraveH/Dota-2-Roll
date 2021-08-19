@@ -10,6 +10,8 @@ module.exports = (client, dbClient) => {
 
     let emoji = '👍';
     let stopEmoji = '🛑';
+    let refreshEmoji = '♻';
+    const BOTID = '877352185409724486';
 
     const whichRollIsHigher = (first, second, channelId) => {
         let rules = getRules(first,second);
@@ -54,6 +56,17 @@ module.exports = (client, dbClient) => {
             return userId;
     }
 
+    const startRoll = async (channel, channelId) => {
+        return channel.send('Add a reaction to join the queue then type \`!completeRoll\` or press the 🛑 emoji.').then((message) => {
+            channelIds.push(channelId)
+            messageInChannel[channelId] = message.id;
+            users[channelId] = []
+            message.react(emoji).then(_ => {
+                message.react(stopEmoji)
+            })
+        })
+    }
+
     const completeRoll = async (channelId, guild, channel) => {
         let rollsText = 'The final roll results are:\n\n'
         let rolls = {}
@@ -62,7 +75,7 @@ module.exports = (client, dbClient) => {
             let user = userIds[i]
             let roll;
             while(true) {
-                roll = Math.floor(Math.random() * 100) + 1;
+                roll = 50;//Math.floor(Math.random() * 100) + 1;
                 if(!needsReroll(roll))
                     break;
             }
@@ -112,14 +125,7 @@ module.exports = (client, dbClient) => {
                 channel.send('A roll is already in progress! Please type !completeRoll to end the roll.');
             }
             else {
-                channel.send('Add a reaction to join the queue then type \`!completeRoll\` or press the 🛑 emoji.').then((message) => {
-                    channelIds.push(channelId)
-                    messageInChannel[channelId] = message.id;
-                    users[channelId] = []
-                    message.react(emoji).then(_ => {
-                        message.react(stopEmoji)
-                    })
-                })
+                await startRoll(channel, channelId);
             }
         }
         else if(content === '!completeRoll') {
@@ -128,7 +134,7 @@ module.exports = (client, dbClient) => {
     })
 
     const handleReaction = async (reaction, user, add, channelId) => {
-        if (user.id === '877352185409724486') {
+        if (user.id === BOTID) {
             return
         }
 
@@ -142,9 +148,12 @@ module.exports = (client, dbClient) => {
                     users[channelId] = users[channelId].filter(u => u !== user.id);
                 }
             } else if (emojiTemp === stopEmoji) {
-                const channel = await client.channels.fetch(channelId)
+                const channel = await client.channels.fetch(channelId);
                 await completeRoll(channelId, message.guild, channel);
             }
+        } else if (emojiTemp === refreshEmoji && message.author.id === BOTID && !channelIds.includes(channelId)) {
+            const channel = await client.channels.fetch(channelId);
+            await startRoll(channel, channelId);
         }
     }
 
