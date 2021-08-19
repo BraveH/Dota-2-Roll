@@ -142,7 +142,7 @@ module.exports = (client, dbClient) => {
                     users[channelId] = users[channelId].filter(u => u !== user.id);
                 }
             } else if (emojiTemp === stopEmoji) {
-                const channel = client.channels.fetch(channelId)
+                const channel = await client.channels.fetch(channelId)
                 await completeRoll(channelId, message.guild, channel);
             }
         }
