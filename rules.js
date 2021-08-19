@@ -1,6 +1,6 @@
 const { v4: uuid } = require('uuid');
 
-const INSERT_SQL = 'INSERT INTO RULES(id, type, numberOne, numberTwo, description) VALUES($1, $2, $3, $4, $5)';
+const INSERT_SQL = 'INSERT INTO RULES(id, type, numberone, numbertwo, description) VALUES($1, $2, $3, $4, $5)';
 const SELECT_SQL = 'SELECT * FROM RULES';
 let db = undefined;
 
@@ -72,7 +72,7 @@ const loadRules = () => {
         if(res && res.rows) {
             for(let i = 0; i < res.rows.length; i++) {
                 let row = res.rows[i];
-                rules[row.id] = new Rule(row.type, row.numberOne, row.numberTwo, row.description);
+                rules[row.id] = new Rule(row.type, row.numberone, row.numbertwo, row.description);
             }
         }
     }).catch(e => {
