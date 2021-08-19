@@ -196,7 +196,7 @@ module.exports = {
                 } else if(splitContent.length === 3 && splitContent[1] === 'greatest') {
                     addRule(newUUID, Rule.TYPES.BEST, splitContent[2]).then(r => rules[newUUID] = r)
                 } else if(splitContent.length > 4 && splitContent[1] === 'text') {
-                    addRule(newUUID, Rule.TYPES.TEXT, splitContent[2], undefined, splitContent.slice(2).join(' ')).then(r => rules[newUUID] = r)
+                    addRule(newUUID, Rule.TYPES.TEXT, splitContent[2], undefined, splitContent.slice(3).join(' ')).then(r => rules[newUUID] = r)
                 } else if(splitContent.length === 3 && splitContent[1] === 'flip') {
                     addRule(newUUID, Rule.TYPES.FLIPS, splitContent[2]).then(r => rules[newUUID] = r)
                 } else if(splitContent.length === 3 && splitContent[1] === 'reroll') {
