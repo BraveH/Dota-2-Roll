@@ -253,6 +253,16 @@ module.exports = {
                     channel.send('Rule not found.');
                 }
             }
+            else if(content === '!listRules') {
+                let keys = Object.keys(rules);
+                let text = keys.length === 1 ? 'The only rule is:\n' : 'The rules are:\n';
+                let length = keys.length;
+                for(let i = 0; i < length; i++) {
+                    let id = keys[i];
+                    text += `${rules[id].display()}[ID = ${id}]` + (i === length - 1 ? '' : '\n');
+                }
+                channel.send(text);
+            }
         });
     }
 }
