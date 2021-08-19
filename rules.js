@@ -43,7 +43,7 @@ class Rule {
             case Rule.TYPES.REROLL:
                 return `${this.numberOne} re-rolls`;
             default:
-                return '';
+                return `[${this.type}], [${this.numberOne}], [${this.numberTwo}], [${this.description}]`;
         }
     }
 }
