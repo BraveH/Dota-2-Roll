@@ -12,7 +12,7 @@ module.exports = (client, dbClient) => {
     const whichRollIsHigher = (first, second, channelId) => {
         let rules = getRules(first,second);
         if(rules.length === 0)
-            return first - second; // sort descending
+            return second - first; // sort descending
         else {
             let [sortResult, ruleUsed] = applyRule(first, second, rules);
 

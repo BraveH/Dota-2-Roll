@@ -55,7 +55,7 @@ const getRulesForNumber = (number) => {
 }
 
 const descendingSort = (firstNumber, secondNumber) => {
-    return firstNumber - secondNumber
+    return secondNumber - firstNumber
 }
 
 const addRule = (id, type, numberOne, numberTwo, description) => {
@@ -147,9 +147,9 @@ module.exports = {
             return [descendingSort(firstNumber, secondNumber), undefined]
 
         if(numOneGreatest)
-            return [1, `${firstNumber} is the greatest`];
+            return [-1, `${firstNumber} is the greatest`];
         if(numTwoGreatest)
-            return [-1, `${secondNumber} is the greatest`];
+            return [1, `${secondNumber} is the greatest`];
 
         if(equalRules.length > 0 && betterRules.length > 0)
             return [descendingSort(firstNumber, secondNumber), undefined]
@@ -164,9 +164,9 @@ module.exports = {
             if(oneBetter && twoBetter)
                 return [descendingSort(firstNumber, secondNumber), undefined]
             else if(oneBetter)
-                return [1, `${firstNumber} > ${secondNumber}`];
+                return [-1, `${firstNumber} > ${secondNumber}`];
             else
-                return [-1, `${secondNumber} > ${firstNumber}`];
+                return [1, `${secondNumber} > ${firstNumber}`];
         }
 
         return [descendingSort(firstNumber, secondNumber), undefined]
