@@ -41,7 +41,7 @@ module.exports = (client, dbClient) => {
 
         let flipCount = 0;
         for(let i = 0; i < items.length; i++) {
-            if(flips(items[i]))
+            if(flips(items[i][1]))
                 flipCount += 1;
         }
 
@@ -108,11 +108,12 @@ module.exports = (client, dbClient) => {
             delete rulesUsed[channelId];
         }
 
-        channel.send(rollsText);
-
-        channelIds = channelIds.filter(c => c !== channelId)
-        delete users[channelId]
-        delete messageInChannel[channelId]
+        channel.send(rollsText).then(message => {
+            message.react(refreshEmoji);
+            channelIds = channelIds.filter(c => c !== channelId)
+            delete users[channelId]
+            delete messageInChannel[channelId]
+        });
     }
 
     client.on('message', async (message) => {

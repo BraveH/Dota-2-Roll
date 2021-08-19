@@ -97,7 +97,6 @@ module.exports = {
 
     flips: (number) => {
         let rulesForNumber = getRulesForNumber(number);
-        console.log(number, rulesForNumber);
         return rulesForNumber.find(r => r.type === Rule.TYPES.FLIPS) !== undefined;
     },
 
