@@ -96,7 +96,9 @@ module.exports = {
     },
 
     flips: (number) => {
-        return getRulesForNumber(number).find(r => r.type === Rule.TYPES.FLIPS) !== undefined;
+        let rulesForNumber = getRulesForNumber(number);
+        console.log(number, rulesForNumber);
+        return rulesForNumber.find(r => r.type === Rule.TYPES.FLIPS) !== undefined;
     },
 
     getRules: (firstNumber, secondNumber) => {
