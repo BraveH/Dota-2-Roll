@@ -35,7 +35,7 @@ class Rule {
             case Rule.TYPES.BEST:
                 return `${this.numberOne} is the greatest`
             case Rule.TYPES.TEXT:
-                return this.description;
+                return `${this.numberOne}: ${this.description}`;
             case Rule.TYPES.EQUAL:
                 return `${this.numberOne} = ${this.numberTwo}`
             case Rule.TYPES.FLIPS:
