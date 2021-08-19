@@ -6,8 +6,10 @@ module.exports = (client, dbClient) => {
     let users = {}
     let rulesUsed = {}
     let channelIds = []
+    let messageInChannel = {}
 
     let emoji = '👍';
+    let stopEmoji = '🛑';
 
     const whichRollIsHigher = (first, second, channelId) => {
         let rules = getRules(first,second);
@@ -52,6 +54,54 @@ module.exports = (client, dbClient) => {
             return userId;
     }
 
+    const completeRoll = async (channelId, guild, channel) => {
+        let rollsText = 'The final roll results are:\n\n'
+        let rolls = {}
+        let userIds = users[channelId] || [];
+        for(let i = 0; i < userIds.length; i++) {
+            let user = userIds[i]
+            let roll;
+            while(true) {
+                roll = Math.floor(Math.random() * 100) + 1;
+                if(!needsReroll(roll))
+                    break;
+            }
+            rolls[user] = roll // between 1->100 inclusive
+        }
+
+        let [sortedRolls, flipCount] = sortRolls(rolls, channelId);
+        let length = sortedRolls.length;
+        for(let i = 0; i < length; i++) {
+            let pair;
+            if(flipCount % 2 === 0)
+                pair = sortedRolls[i];
+            else
+                pair = sortedRolls[length - 1 - i];
+            let nickname = await getNickname(pair[0], guild);
+
+            let roll = pair[1];
+            let descriptions = getDescriptions(roll);
+            rollsText += `${i+1} - ${nickname} = ${roll}${descriptions.length > 0 ? ' | ' + descriptions.join(', ') : ''}` + (i === length - 1 ? '' : '\n');
+        }
+        if(flipCount > 0)
+            rollsText += `\n\nTable flipped ${flipCount} time${flipCount > 1 ? 's' : ''}`
+        if(rulesUsed[channelId]) {
+            let r = rulesUsed[channelId]
+            let rulesUsedLength = r.length;
+            rollsText += `\n\nRule${rulesUsedLength > 1 ? 's' : ''} Used:\n`
+            for(let i = 0; i < rulesUsedLength; i++) {
+                rollsText += `${r[i]}` + (i === rulesUsedLength - 1 ? '' : '\n');
+            }
+            delete rulesUsed[channelId];
+        }
+
+        channel.send(rollsText);
+
+        channelIds = channelIds.filter(c => c !== channelId)
+        delete users[channelId]
+        delete messageInChannel[channelId]
+    }
+
     client.on('message', async (message) => {
         const { content } = message
 
@@ -62,58 +112,18 @@ module.exports = (client, dbClient) => {
                 channel.send('A roll is already in progress! Please type !completeRoll to end the roll.');
             }
             else {
-                channel.send('Add a reaction to join the queue then type !completeRoll').then((message) => {
+                channel.send('Add a reaction to join the queue then type \`!completeRoll\` or press the 🛑 emoji.').then((message) => {
                     channelIds.push(channelId)
+                    messageInChannel[channelId] = message.id;
                     users[channelId] = []
-                    message.react(emoji)
+                    message.react(emoji).then(_ => {
+                        message.react(stopEmoji)
+                    })
                 })
             }
         }
         else if(content === '!completeRoll') {
-            let rollsText = 'The final roll results are:\n\n'
-            let rolls = {}
-            let userIds = users[channelId] || [];
-            for(let i = 0; i < userIds.length; i++) {
-                let user = userIds[i]
-                let roll;
-                while(true) {
-                    roll = Math.floor(Math.random() * 100) + 1;
-                    if(!needsReroll(roll))
-                        break;
-                }
-                rolls[user] = roll // between 1->100 inclusive
-            }
-
-            let [sortedRolls, flipCount] = sortRolls(rolls, channelId);
-            let length = sortedRolls.length;
-            for(let i = 0; i < length; i++) {
-                let pair;
-                if(flipCount % 2 === 0)
-                    pair = sortedRolls[i];
-                else
-                    pair = sortedRolls[length - 1 - i];
-                let nickname = await getNickname(pair[0], message.guild);
-
-                let roll = pair[1];
-                let descriptions = getDescriptions(roll);
-                rollsText += `${i+1} - ${nickname} = ${roll}${descriptions.length > 0 ? ' | ' + descriptions.join(', ') : ''}` + (i === length - 1 ? '' : '\n');
-            }
-            if(flipCount > 0)
-                rollsText += `\n\nTable flipped ${flipCount} time${flipCount > 1 ? 's' : ''}`
-            if(rulesUsed[channelId]) {
-                let r = rulesUsed[channelId]
-                let rulesUsedLength = r.length;
-                rollsText += `\n\nRule${rulesUsedLength > 1 ? 's' : ''} Used:\n`
-                for(let i = 0; i < rulesUsedLength; i++) {
-                    rollsText += `${r[i]}` + (i === rulesUsedLength - 1 ? '' : '\n');
-                }
-                delete rulesUsed[channelId];
-            }
-
-            channel.send(rollsText);
-
-            channelIds = channelIds.filter(c => c !== channelId)
-            delete users[channelId]
+            await completeRoll(channelId, message.guild, channel);
         }
     })
 
@@ -123,11 +133,17 @@ module.exports = (client, dbClient) => {
         }
 
         const emojiTemp = reaction._emoji.name
-        if (emojiTemp === emoji) {
-            if (add) {
-                users[channelId].push(user.id)
-            } else {
-                users[channelId] = users[channelId].filter(u => u !== user.id);
+        let message = reaction.message;
+        if(messageInChannel[channelId] && message.id === messageInChannel[channelId]) {
+            if (emojiTemp === emoji) {
+                if (add) {
+                    users[channelId].push(user.id)
+                } else {
+                    users[channelId] = users[channelId].filter(u => u !== user.id);
+                }
+            } else if (emojiTemp === stopEmoji) {
+                const channel = client.channels.fetch(channelId)
+                completeRoll(channelId, message.guild, channel);
             }
         }
     }
