@@ -203,7 +203,7 @@ module.exports = {
                 } else if(splitContent.length === 3 && splitContent[1] === 'reroll') {
                     addRule(newUUID, Rule.TYPES.REROLL, splitContent[2]).then(r => rules[newUUID] = r)
                 } else {
-                    channel.send('Invalid syntax.\n!addRule greater number number\n!addRule equals number number\n!addRule greatest number\n!addRule flip number\n!addRule reroll number\n!addRule text number DESCRIPTION');
+                    channel.send('Invalid syntax.\n\`!addRule greater number number\`\n\`!addRule equals number number\`\n\`!addRule greatest number\`\n\`!addRule flip number\`\n\`!addRule reroll number\`\n\`!addRule text number DESCRIPTION\`');
                     return;
                 }
                 channel.send(`Rule added. (ID = ${newUUID})`);

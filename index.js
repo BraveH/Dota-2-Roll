@@ -23,27 +23,27 @@ client.on('ready', () => {
       channel.send(
           'Dota 2 Roll Bot Help\n\n' +
           'Rolling:\n' +
-          '\t!setupRoll\n' +
-          '\t!completeRoll\n\n' +
+          '\t\`!setupRoll\`\n' +
+          '\t\`!completeRoll\`\n\n' +
 
           'Add Rules:\n' +
-          '\t!addRule greater numberOne numberTwo\n' +
-          '\t!addRule equals numberOne numberTwo\n' +
-          '\t!addRule greatest number\n' +
-          '\t!addRule flip number\n' +
-          '\t!addRule reroll number\n' +
-          '\t!addRule text number description\n\n' +
+          '\t\`!addRule greater numberOne numberTwo\`\n' +
+          '\t\`!addRule equals numberOne numberTwo\`\n' +
+          '\t\`!addRule greatest number\`\n' +
+          '\t\`!addRule flip number\`\n' +
+          '\t\`!addRule reroll number\`\n' +
+          '\t\`!addRule text number description\`\n\n' +
 
           'Remove Rules:\n' +
-          '\t!removeRules number\n' +
-          '\t!removeRuleById ID\n\n' +
+          '\t\`!removeRules number\`\n' +
+          '\t\`!removeRuleById ID\`\n\n' +
 
           'Check Rules:\n' +
-          '\t!checkRule number\n' +
-          '\t!checkRuleById ID\n\n' +
+          '\t\`!checkRule number\`\n' +
+          '\t\`!checkRuleById ID\`\n\n' +
 
           'List Rules:\n' +
-          '\t!listRules'
+          '\t\`!listRules\`'
       );
     }
   })

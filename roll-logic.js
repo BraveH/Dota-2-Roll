@@ -124,14 +124,18 @@ module.exports = (client, dbClient) => {
         const channel = await client.channels.fetch(channelId)
         if (content === '!setupRoll') {
             if(channelIds.includes(channelId)) {
-                channel.send('A roll is already in progress! Please type !completeRoll to end the roll.');
+                channel.send('A roll is already in progress! Please type \`!completeRoll\` to end the roll.');
             }
             else {
                 await startRoll(channel, channelId);
             }
         }
         else if(content === '!completeRoll') {
-            await completeRoll(channelId, message.guild, channel);
+            if(channelIds.includes(channelId)) {
+                await completeRoll(channelId, message.guild, channel);
+            } else {
+                channel.send('There is no roll in progress. Type \`!startRoll\` to start a new roll.');
+            }
         }
     })
 
