@@ -134,7 +134,7 @@ module.exports = (client, dbClient) => {
             if(channelIds.includes(channelId)) {
                 await completeRoll(channelId, message.guild, channel);
             } else {
-                channel.send('There is no roll in progress. Type \`!startRoll\` to start a new roll.');
+                channel.send('There is no roll in progress. Type \`!setupRoll\` to start a new roll.');
             }
         }
     })
