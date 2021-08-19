@@ -1,6 +1,7 @@
 const { v4: uuid } = require('uuid');
 
 const INSERT_SQL = 'INSERT INTO RULES(id, type, numberone, numbertwo, description) VALUES($1, $2, $3, $4, $5)';
+const DELETE_SQL = 'DELETE FROM RULES WHERE id in ($1)';
 const SELECT_SQL = 'SELECT * FROM RULES';
 let db = undefined;
 
@@ -64,6 +65,15 @@ const addRule = (id, type, numberOne, numberTwo, description) => {
     }).catch(e => {
         console.error(e);
         return Promise.resolve(rule)
+    })
+}
+
+const deleteRules = (ruleIds) => {
+    return db.query(DELETE_SQL, ruleIds.join(',')).then(r => {
+        return Promise.resolve();
+    }).catch(e => {
+        console.error(e);
+        return Promise.resolve();
     })
 }
 
@@ -201,10 +211,12 @@ module.exports = {
                 let filtered = Object.keys(rules).map(key => [key, rules[key]]).filter(pair => pair[1].numberOne === splitContent[1] || pair[1].numberTwo === splitContent[1]) || [];
 
                 if(filtered.length > 0) {
-                    for(let i = 0; i < filtered.length; i++) {
-                        delete rules[filtered[i][0]]
-                    }
-                    channel.send('All rules removed.');
+                    deleteRules(filtered.map(pair => pair[0])).then(_ => {
+                        for(let i = 0; i < filtered.length; i++) {
+                            delete rules[filtered[i][0]]
+                        }
+                        channel.send('All rules removed.');
+                    })
                 } else {
                     channel.send('No rules found.');
                 }
@@ -212,8 +224,10 @@ module.exports = {
             else if (content.startsWith('!removeRuleById') && splitContent.length === 2) {
                 let id = splitContent[1];
                 if(rules[id]) {
-                    delete rules[id];
-                    channel.send('Rule removed.');
+                    deleteRules([id]).then(_ => {
+                        delete rules[id];
+                        channel.send('Rule removed.');
+                    })
                 } else {
                     channel.send('Rule not found.');
                 }
