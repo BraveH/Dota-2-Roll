@@ -101,8 +101,9 @@ module.exports = (client, dbClient) => {
         }
         if(flipCount > 0)
             rollsText += `\n\nTable flipped ${flipCount} time${flipCount > 1 ? 's' : ''}`
-        if(rulesUsed[channelId]) {
-            let r = rulesUsed[channelId]
+
+        let r = rulesUsed[channelId]
+        if(r) {
             let rulesUsedLength = r.length;
             rollsText += `\n\nRule${rulesUsedLength > 1 ? 's' : ''} Used:\n`
             for(let i = 0; i < rulesUsedLength; i++) {
@@ -121,7 +122,8 @@ module.exports = (client, dbClient) => {
     }
 
     client.on('message', async (message) => {
-        const { content } = message
+        let { content } = message
+        content = content.trim();
 
         const channelId = message.channel.id;
         const channel = await client.channels.fetch(channelId)
@@ -139,6 +141,12 @@ module.exports = (client, dbClient) => {
             } else {
                 channel.send('There is no roll in progress. Type \`!setupRoll\` to start a new roll.');
             }
+        }
+        else if(content.startsWith('!testSort')) {
+            let rolls = content.split(' ').slice(1);
+            let [sortedRolls, flipCount] = sortRolls(rolls, 'testChannel');
+            delete rulesUsed['testChannel'];
+            channel.send(`\`sortedRolls = ${sortedRolls.map(r => r[1]).join(',')}\` & flipCount = ${flipCount} `);
         }
     })
 

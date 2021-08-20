@@ -202,7 +202,7 @@ module.exports = {
 
     applyRule: (firstNumber, secondNumber, rulesObtained) => {
         if(getValueRulesOnly(firstNumber,secondNumber).length > 0)
-            return 0; // they have the same value so equate
+            return [0, `${firstNumber} has the value of ${secondNumber}`]; // they have the same value so equate
 
         let firstNumberRules = rulesObtained.filter(r => (r.numberOne === firstNumber || r.numberTwo === firstNumber) &&
             (r.numberOne === undefined || r.numberTwo === undefined));
