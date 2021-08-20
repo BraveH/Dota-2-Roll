@@ -95,7 +95,7 @@ const getValueRules = (number, equatedValues) =>{
         })
         .map(rule => {
             let otherNumber = getOtherNumber(rule, number);
-            let [rulesForNumber, newEquatedValues] = getRulesForNumber(otherNumber, [...tempEquatedValues, number]);
+            let [rulesForNumber, newEquatedValues] = getRulesForNumber2(otherNumber, [...tempEquatedValues, number]);
             tempEquatedValues = newEquatedValues;
             return rulesForNumber
                     .map(ruleForOtherNumber => ruleForOtherNumber.duplicateButReplacingNumber(otherNumber, number));
