@@ -10,6 +10,7 @@ module.exports = (client, dbClient) => {
 
     let emoji = '👍';
     let stopEmoji = '🛑';
+    let cancelEmoji = '❌';
     let refreshEmoji = '♻';
     const BOTID = '877352185409724486';
 
@@ -63,12 +64,14 @@ module.exports = (client, dbClient) => {
     }
 
     const startRoll = async (channel, channelId) => {
-        return channel.send('Add a reaction to join the queue then type \`!completeRoll\` or press the 🛑 emoji.').then((message) => {
-            channelIds.push(channelId)
+        channelIds.push(channelId);
+        return channel.send(`Add a reaction to join the queue then type \`!completeRoll\` or press the ${stopEmoji} emoji.\nYou can also press the ${cancelEmoji} emoji to cancel the queue.`).then((message) => {
             messageInChannel[channelId] = message.id;
             users[channelId] = []
             message.react(emoji).then(_ => {
-                message.react(stopEmoji)
+                message.react(stopEmoji).then(_ => {
+                    message.react(cancelEmoji);
+                })
             })
         })
     }
@@ -172,6 +175,13 @@ module.exports = (client, dbClient) => {
             } else if (emojiTemp === stopEmoji) {
                 const channel = await client.channels.fetch(channelId);
                 await completeRoll(channelId, message.guild, channel);
+            } else if (emojiTemp === cancelEmoji) {
+                channelIds = channelIds.filter(c => c !== channelId)
+                delete users[channelId]
+                delete messageInChannel[channelId]
+                channel.send(`Queue has been cancelled. Type \`!setupRoll\` or press the ${refreshEmoji} emoji to start a new queue.`).then(message => {
+                    message.react(refreshEmoji);
+                });
             }
         } else if (emojiTemp === refreshEmoji && message.author.id === BOTID && !containsChannel) {
             const channel = await client.channels.fetch(channelId);
