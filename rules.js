@@ -54,10 +54,11 @@ class Rule {
 const rules = {}
 
 const getOtherNumber = (rule, number) => {
-    if(rule.numberOne === number)
+    if(rule.numberOne == number)
         return rule.numberTwo;
-    else
+    else if(rule.numberTwo == number)
         return rule.numberOne;
+    else return undefined;
 }
 
 const duplicateButReplacingNumber = (rule, originalNumber, newNumber) => {
@@ -93,8 +94,10 @@ const getValueRules = (number, equatedValues) =>{
     let tempEquatedValues = equatedValues;
     return [Object.values(rules).filter(rule => {
         let otherNumber = getOtherNumber(rule, number);
-        console.log("Other number: ", otherNumber, number, tempEquatedValues, rule);
-        return rule.type === Rule.TYPES.VALUE && (rule.numberOne === number || rule.numberTwo === number) &&
+        console.log("Other number:", otherNumber, number, tempEquatedValues, rule);
+        return otherNumber !== undefined &&
+            rule.type === Rule.TYPES.VALUE &&
+            (rule.numberOne === number || rule.numberTwo === number) &&
                 !tempEquatedValues.includes(otherNumber)
         })
         .map(rule => {
