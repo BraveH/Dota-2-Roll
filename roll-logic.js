@@ -32,6 +32,9 @@ module.exports = (client, dbClient) => {
     }
 
     const sortRolls = (rolls, channelId) => {
+        // TODO within each sort cache the rules of each number within the list of numbers so that they don't have
+        //  to be found over and over again within the sort
+
         // Create items array
         let items = Object.keys(rolls).map(function(key) {
             return [key, rolls[key]];
