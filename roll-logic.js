@@ -74,6 +74,7 @@ module.exports = (client, dbClient) => {
     }
 
     const completeRoll = async (channelId, guild, channel) => {
+        channelIds = channelIds.filter(c => c !== channelId)
         let rollsText = 'The final roll results are:\n\n'
         let rolls = {}
         let userIds = users[channelId] || [];
@@ -116,7 +117,6 @@ module.exports = (client, dbClient) => {
         }
 
         channel.send(rollsText).then(message => {
-            channelIds = channelIds.filter(c => c !== channelId)
             delete users[channelId]
             delete messageInChannel[channelId]
 
