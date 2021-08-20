@@ -62,7 +62,7 @@ const getOtherNumber = (rule, number) => {
 
 const duplicateButReplacingNumber = (rule, originalNumber, newNumber) => {
     let result;
-    console.log(rule);
+    console.log("PRINT:", rule);
     if(rule === undefined || (rule.numberOne !== originalNumber && rule.numberTwo !== originalNumber)) {
         result = undefined;
     }
