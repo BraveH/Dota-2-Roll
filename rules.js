@@ -73,6 +73,21 @@ const getOtherNumber = (rule, number) => {
         return rule.numberOne;
 }
 
+const getValueRulesForNum = (numberOne) => {
+    return Object.values(rules).filter(
+        rule => (rule.numberOne === numberOne || rule.numberTwo === numberOne)
+            && rule.type === Rule.TYPES.VALUE
+    )
+}
+
+const getValueRulesOnly = (numberOne, numberTwo) => {
+    return Object.values(rules).filter(
+        rule => (rule.numberOne === numberOne || rule.numberTwo === numberOne)
+        && (rule.numberOne === numberTwo || rule.numberTwo === numberTwo)
+        && rule.type === Rule.TYPES.VALUE
+    )
+}
+
 const getValueRules = (number, equatedValues) =>{
     let tempEquatedValues = equatedValues;
     return [Object.values(rules).filter(rule => {
@@ -173,13 +188,18 @@ module.exports = {
         if(firstNumber && secondNumber) {
             result.push(Object.values(rules).filter(rule =>
                 (rule.numberOne === firstNumber || rule.numberTwo === firstNumber) &&
-                (rule.numberOne === secondNumber || rule.numberTwo === secondNumber)));
+                (rule.numberOne === secondNumber || rule.numberTwo === secondNumber) &&
+                rule.type !== Rule.TYPES.VALUE
+            ));
         }
 
         return result;
     },
 
     applyRule: (firstNumber, secondNumber, rulesObtained) => {
+        if(getValueRulesOnly(firstNumber,secondNumber).length > 0)
+            return 0; // they have the same value so equate
+
         let firstNumberRules = rulesObtained.filter(r => (r.numberOne === firstNumber || r.numberTwo === firstNumber) &&
             (r.numberOne === undefined || r.numberTwo === undefined));
         const numOneGreatest = firstNumberRules.find(r => r.type === Rule.TYPES.BEST) !== undefined;
