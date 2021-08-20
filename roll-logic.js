@@ -179,6 +179,7 @@ module.exports = (client, dbClient) => {
                 channelIds = channelIds.filter(c => c !== channelId)
                 delete users[channelId]
                 delete messageInChannel[channelId]
+                const channel = await client.channels.fetch(channelId);
                 channel.send(`Queue has been cancelled. Type \`!setupRoll\` or press the ${refreshEmoji} emoji to start a new queue.`).then(message => {
                     message.react(refreshEmoji);
                 });
