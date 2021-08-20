@@ -1,4 +1,4 @@
-const {getRules, applyRule, setup, flips, getDescriptions, needsReroll} = require('./rules')
+const {getRules, applyRule, setup, flips, getDescriptions, needsReroll, findInvalidGreaterRule} = require('./rules')
 
 module.exports = (client, dbClient) => {
     setup(client, dbClient);
@@ -18,6 +18,9 @@ module.exports = (client, dbClient) => {
         if(rules.length === 0)
             return second - first; // sort descending
         else {
+            if(findInvalidGreaterRule(rules))
+                return second - first;
+
             let [sortResult, ruleUsed] = applyRule(first, second, rules);
 
             if(ruleUsed) {

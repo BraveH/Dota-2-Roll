@@ -140,6 +140,12 @@ const loadRules = () => {
 }
 
 module.exports = {
+    findInvalidGreaterRule: (filteredRules) => {
+        // any greater than rule that has same number on both sides
+        return filteredRules
+            .find(r => r.type === Rule.TYPES.BETTER && r.numberOne === r.numberTwo && r.numberOne !== undefined) !== undefined
+    },
+
     getDescriptions: (number) => {
         return getRulesForNumber(number).filter(r => r.type === Rule.TYPES.TEXT).map(r => r.description);
     },
