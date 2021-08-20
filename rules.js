@@ -49,19 +49,6 @@ class Rule {
                 return `[${this.type}], [${this.numberOne}], [${this.numberTwo}], [${this.description}]`;
         }
     }
-
-    duplicateButReplacingNumber(originalNumber, newNumber) {
-        let result;
-        if(this.numberOne !== originalNumber && this.numberTwo !== originalNumber) {
-            result = undefined;
-        }
-        else if(this.numberOne === originalNumber) {
-            result = new Rule(this.type, newNumber, this.numberTwo, this.description);
-        } else {
-            result = new Rule(this.type, this.numberOne, newNumber, this.description);
-        }
-        return result;
-    }
 }
 
 const rules = {}
@@ -71,6 +58,20 @@ const getOtherNumber = (rule, number) => {
         return rule.numberTwo;
     else
         return rule.numberOne;
+}
+
+const duplicateButReplacingNumber = (rule, originalNumber, newNumber) => {
+    let result;
+    console.log(rule);
+    if(rule === undefined || (rule.numberOne !== originalNumber && rule.numberTwo !== originalNumber)) {
+        result = undefined;
+    }
+    else if(this.numberOne === originalNumber) {
+        result = new Rule(rule.type, newNumber, rule.numberTwo, rule.description);
+    } else {
+        result = new Rule(rule.type, rule.numberOne, newNumber, rule.description);
+    }
+    return result;
 }
 
 const getValueRulesForNum = (numberOne) => {
@@ -95,10 +96,14 @@ const getValueRules = (number, equatedValues) =>{
         })
         .map(rule => {
             let otherNumber = getOtherNumber(rule, number);
+
+            if(tempEquatedValues.includes(otherNumber))
+                return [];
+
             let [rulesForNumber, newEquatedValues] = getRulesForNumber2(otherNumber, [...tempEquatedValues, number]);
             tempEquatedValues = newEquatedValues;
             return rulesForNumber
-                    .map(ruleForOtherNumber => ruleForOtherNumber.duplicateButReplacingNumber(otherNumber, number));
+                    .map(ruleForOtherNumber => duplicateButReplacingNumber(ruleForOtherNumber, otherNumber, number));
             }
         ).concat(), tempEquatedValues];
 }
