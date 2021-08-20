@@ -147,10 +147,8 @@ module.exports = (client, dbClient) => {
         const emojiTemp = reaction._emoji.name
         let message = reaction.message;
         let containsChannel = channelIds.includes(channelId);
-        let messageIdInChannel = messageInChannel[channelId];
         let id = message.id;
-        console.log(emojiTemp, message.author.id, containsChannel, messageIdInChannel, id);
-        if(messageIdInChannel && id === messageIdInChannel && containsChannel) {
+        if(containsChannel && messageInChannel[channelId] && id === messageInChannel[channelId]) {
             if (emojiTemp === emoji) {
                 if (add) {
                     users[channelId].push(user.id)

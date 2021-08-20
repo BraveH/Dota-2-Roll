@@ -12,7 +12,8 @@ class Rule {
         TEXT: "text",
         EQUAL: "equal",
         FLIPS: "flips",
-        REROLL: "reroll"
+        REROLL: "reroll",
+        VALUE: "value"
     }
 
     constructor(type, numberOne, numberTwo, description) {
@@ -31,27 +32,75 @@ class Rule {
     display = () => {
         switch (this.type) {
             case Rule.TYPES.BETTER:
-                return `${this.numberOne} > ${this.numberTwo}`
+                return `${this.numberOne} > ${this.numberTwo}`;
             case Rule.TYPES.BEST:
-                return `${this.numberOne} is the greatest`
+                return `${this.numberOne} is the greatest`;
             case Rule.TYPES.TEXT:
                 return `${this.numberOne}: ${this.description}`;
             case Rule.TYPES.EQUAL:
-                return `${this.numberOne} = ${this.numberTwo}`
+                return `${this.numberOne} = ${this.numberTwo}`;
             case Rule.TYPES.FLIPS:
-                return `${this.numberOne} flips rankings`
+                return `${this.numberOne} flips rankings`;
             case Rule.TYPES.REROLL:
                 return `${this.numberOne} re-rolls`;
+            case Rule.TYPES.VALUE:
+                return `${this.numberOne} has the same value as ${this.numberTwo}`;
             default:
                 return `[${this.type}], [${this.numberOne}], [${this.numberTwo}], [${this.description}]`;
         }
+    }
+
+    duplicateButReplacingNumber(originalNumber, newNumber) {
+        let result;
+        if(this.numberOne !== originalNumber && this.numberTwo !== originalNumber) {
+            result = undefined;
+        }
+        else if(this.numberOne === originalNumber) {
+            result = new Rule(this.type, newNumber, this.numberTwo, this.description);
+        } else {
+            result = new Rule(this.type, this.numberOne, newNumber, this.description);
+        }
+        return result;
     }
 }
 
 const rules = {}
 
+const getOtherNumber = (rule, number) => {
+    if(rule.numberOne === number)
+        return rule.numberTwo;
+    else
+        return rule.numberOne;
+}
+
+const getValueRules = (number, equatedValues) =>{
+    let tempEquatedValues = equatedValues;
+    return [Object.values(rules).filter(rule => {
+            let otherNumber = getOtherNumber(rule, number);
+            return rule.type !== Rule.TYPES.VALUE && !tempEquatedValues.includes(otherNumber)
+        })
+        .map(rule => {
+            let otherNumber = getOtherNumber(rule, number);
+            let [rulesForNumber, newEquatedValues] = getRulesForNumber(otherNumber, [...tempEquatedValues, number]);
+            tempEquatedValues = newEquatedValues;
+            return rulesForNumber
+                    .map(ruleForOtherNumber => ruleForOtherNumber.duplicateButReplacingNumber(otherNumber, number));
+            }
+        ).concat(), tempEquatedValues];
+}
+
+const getRulesForNumber2 = (number, equatedValues) => {
+    let [valueRules, newEquatedValues] = getValueRules(number, equatedValues || []);
+    let numberRules = Object.values(rules).filter(rule => rule.numberOne === number || rule.numberTwo === number && rule.type !== Rule.TYPES.VALUE);
+    return [[
+        ...numberRules,
+        ...valueRules
+    ], newEquatedValues];
+
+}
+
 const getRulesForNumber = (number) => {
-    return Object.values(rules).filter(rule => rule.numberOne === number || rule.numberTwo === number);
+    return getRulesForNumber2(number, [])[0];
 }
 
 const descendingSort = (firstNumber, secondNumber) => {
@@ -202,8 +251,10 @@ module.exports = {
                     addRule(newUUID, Rule.TYPES.FLIPS, splitContent[2]).then(r => rules[newUUID] = r)
                 } else if(splitContent.length === 3 && splitContent[1] === 'reroll') {
                     addRule(newUUID, Rule.TYPES.REROLL, splitContent[2]).then(r => rules[newUUID] = r)
+                } else if(splitContent.length === 4 && splitContent[1] === 'value') {
+                    addRule(newUUID, Rule.TYPES.VALUE, splitContent[2], splitContent[3]).then(r => rules[newUUID] = r)
                 } else {
-                    channel.send('Invalid syntax.\n\`!addRule greater number number\`\n\`!addRule equals number number\`\n\`!addRule greatest number\`\n\`!addRule flip number\`\n\`!addRule reroll number\`\n\`!addRule text number DESCRIPTION\`');
+                    channel.send('Invalid syntax.\n\`!addRule greater number number\`\n\`!addRule equals number number\`\n\`!addRule greatest number\`\n\`!addRule flip number\`\n\`!addRule reroll number\`\n\`!addRule text number DESCRIPTION\`\n\`!addRule value number number\`');
                     return;
                 }
                 channel.send(`Rule added. (ID = ${newUUID})`);

@@ -32,7 +32,8 @@ client.on('ready', () => {
           '\t\`!addRule greatest number\`\n' +
           '\t\`!addRule flip number\`\n' +
           '\t\`!addRule reroll number\`\n' +
-          '\t\`!addRule text number description\`\n\n' +
+          '\t\`!addRule text number description\`\n' +
+          '\t\`!addRule value number number\`\n\n' +
 
           'Remove Rules:\n' +
           '\t\`!removeRules number\`\n' +
