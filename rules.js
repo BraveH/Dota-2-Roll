@@ -92,7 +92,8 @@ const getValueRulesOnly = (numberOne, numberTwo) => {
 const getValueRules = (number, equatedValues) =>{
     let tempEquatedValues = equatedValues;
     return [Object.values(rules).filter(rule => {
-            return rule.type === Rule.TYPES.VALUE && !tempEquatedValues.includes(getOtherNumber(rule, number))
+            return rule.type === Rule.TYPES.VALUE && (rule.numberOne === number || rule.numberTwo === number) &&
+                !tempEquatedValues.includes(getOtherNumber(rule, number))
         })
         .map(rule => {
             let otherNumber = getOtherNumber(rule, number);
