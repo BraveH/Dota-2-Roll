@@ -64,10 +64,10 @@ const getOtherNumber = (rule, number) => {
 const duplicateButReplacingNumber = (rule, originalNumber, newNumber) => {
     let result;
     console.log("PRINT:", rule);
-    if(rule === undefined || (rule.numberOne !== originalNumber && rule.numberTwo !== originalNumber)) {
+    if(rule === undefined || (rule.numberOne != originalNumber && rule.numberTwo != originalNumber)) {
         result = undefined;
     }
-    else if(this.numberOne === originalNumber) {
+    else if(this.numberOne == originalNumber) {
         result = new Rule(rule.type, newNumber, rule.numberTwo, rule.description);
     } else {
         result = new Rule(rule.type, rule.numberOne, newNumber, rule.description);
@@ -77,15 +77,15 @@ const duplicateButReplacingNumber = (rule, originalNumber, newNumber) => {
 
 const getValueRulesForNum = (numberOne) => {
     return Object.values(rules).filter(
-        rule => (rule.numberOne === numberOne || rule.numberTwo === numberOne)
+        rule => (rule.numberOne == numberOne || rule.numberTwo == numberOne)
             && rule.type === Rule.TYPES.VALUE
     )
 }
 
 const getValueRulesOnly = (numberOne, numberTwo) => {
     return Object.values(rules).filter(
-        rule => (rule.numberOne === numberOne || rule.numberTwo === numberOne)
-        && (rule.numberOne === numberTwo || rule.numberTwo === numberTwo)
+        rule => (rule.numberOne == numberOne || rule.numberTwo == numberOne)
+        && (rule.numberOne == numberTwo || rule.numberTwo == numberTwo)
         && rule.type === Rule.TYPES.VALUE
     )
 }
@@ -97,7 +97,7 @@ const getValueRules = (number, equatedValues) =>{
         console.log("Other number:", otherNumber, number, tempEquatedValues, rule);
         return otherNumber !== undefined &&
             rule.type === Rule.TYPES.VALUE &&
-            (rule.numberOne === number || rule.numberTwo === number) &&
+            (rule.numberOne == number || rule.numberTwo == number) &&
                 !tempEquatedValues.includes(otherNumber)
         })
         .map(rule => {
@@ -119,7 +119,7 @@ const getValueRules = (number, equatedValues) =>{
 
 const getRulesForNumber2 = (number, equatedValues) => {
     let [valueRules, newEquatedValues] = getValueRules(number, equatedValues || []);
-    let numberRules = Object.values(rules).filter(rule => rule.numberOne === number || rule.numberTwo === number && rule.type !== Rule.TYPES.VALUE);
+    let numberRules = Object.values(rules).filter(rule => rule.numberOne == number || rule.numberTwo == number && rule.type !== Rule.TYPES.VALUE);
     return [[
         ...numberRules,
         ...valueRules
@@ -171,7 +171,7 @@ module.exports = {
     findInvalidGreaterRule: (filteredRules) => {
         // any greater than rule that has same number on both sides
         return filteredRules
-            .find(r => r.type === Rule.TYPES.BETTER && r.numberOne === r.numberTwo && r.numberOne !== undefined) !== undefined
+            .find(r => r.type === Rule.TYPES.BETTER && r.numberOne == r.numberTwo && r.numberOne !== undefined) !== undefined
     },
 
     getDescriptions: (number) => {
@@ -200,8 +200,8 @@ module.exports = {
 
         if(firstNumber && secondNumber) {
             result.push(Object.values(rules).filter(rule =>
-                (rule.numberOne === firstNumber || rule.numberTwo === firstNumber) &&
-                (rule.numberOne === secondNumber || rule.numberTwo === secondNumber) &&
+                (rule.numberOne == firstNumber || rule.numberTwo == firstNumber) &&
+                (rule.numberOne == secondNumber || rule.numberTwo == secondNumber) &&
                 rule.type !== Rule.TYPES.VALUE
             ));
         }
@@ -213,23 +213,23 @@ module.exports = {
         if(getValueRulesOnly(firstNumber,secondNumber).length > 0)
             return [0, `${firstNumber} has the value of ${secondNumber}`]; // they have the same value so equate
 
-        let firstNumberRules = rulesObtained.filter(r => (r.numberOne === firstNumber || r.numberTwo === firstNumber) &&
+        let firstNumberRules = rulesObtained.filter(r => (r.numberOne == firstNumber || r.numberTwo == firstNumber) &&
             (r.numberOne === undefined || r.numberTwo === undefined));
         const numOneGreatest = firstNumberRules.find(r => r.type === Rule.TYPES.BEST) !== undefined;
 
         let secondNumberRules = rulesObtained.filter(r => !(r.numberOne === undefined || r.numberTwo === undefined) &&
-            (r.numberOne === secondNumber || r.numberTwo === secondNumber));
+            (r.numberOne == secondNumber || r.numberTwo == secondNumber));
         const numTwoGreatest = secondNumberRules.find(r =>r.type === Rule.TYPES.BEST) !== undefined;
 
-        let bothNumberRules = rulesObtained.filter(r => (r.numberOne === firstNumber || r.numberTwo === firstNumber) &&
-            (r.numberOne === secondNumber || r.numberTwo === secondNumber));
+        let bothNumberRules = rulesObtained.filter(r => (r.numberOne == firstNumber || r.numberTwo == firstNumber) &&
+            (r.numberOne == secondNumber || r.numberTwo == secondNumber));
         let betterRules = bothNumberRules.filter(r => r.type === Rule.TYPES.BETTER);
         let equalRules = bothNumberRules.filter(r => r.type === Rule.TYPES.EQUAL);
 
-        if(numOneGreatest && numTwoGreatest && firstNumber !== secondNumber)
+        if(numOneGreatest && numTwoGreatest && firstNumber != secondNumber)
             return [descendingSort(firstNumber, secondNumber), undefined]
 
-        if(numOneGreatest || numTwoGreatest && firstNumber !== secondNumber && equalRules.length > 0)
+        if(numOneGreatest || numTwoGreatest && firstNumber != secondNumber && equalRules.length > 0)
             return [descendingSort(firstNumber, secondNumber), undefined]
 
         if(numOneGreatest || numTwoGreatest && betterRules.length > 0)
@@ -247,8 +247,8 @@ module.exports = {
             return [0, `${firstNumber} = ${secondNumber}`];
 
         if(betterRules.length > 0) {
-            let oneBetter = betterRules.find(r => r.numberOne === firstNumber) !== undefined
-            let twoBetter = betterRules.find(r => r.numberOne === secondNumber) !== undefined
+            let oneBetter = betterRules.find(r => r.numberOne == firstNumber) !== undefined
+            let twoBetter = betterRules.find(r => r.numberOne == secondNumber) !== undefined
 
             if(oneBetter && twoBetter)
                 return [descendingSort(firstNumber, secondNumber), undefined]
