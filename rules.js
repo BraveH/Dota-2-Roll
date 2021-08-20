@@ -99,12 +99,15 @@ const getValueRules = (number, equatedValues) =>{
         })
         .map(rule => {
             let otherNumber = getOtherNumber(rule, number);
+            console.log("Other number2: ", otherNumber, number);
 
             if(tempEquatedValues.includes(otherNumber))
                 return [];
 
             let [rulesForNumber, newEquatedValues] = getRulesForNumber2(otherNumber, [...tempEquatedValues, otherNumber]);
             tempEquatedValues = newEquatedValues;
+
+            console.log("Res: ", rulesForNumber, newEquatedValues);
             return rulesForNumber
                     .map(ruleForOtherNumber => duplicateButReplacingNumber(ruleForOtherNumber, otherNumber, number));
             }
