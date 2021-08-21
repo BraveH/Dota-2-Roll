@@ -233,8 +233,8 @@ module.exports = {
         if(getValueRulesOnly(firstNumber,secondNumber).length > 0)
             return [0, `${firstNumber} has the value of ${secondNumber}`]; // they have the same value so equate
 
-        const numOneGreatest = rulesObtained.find(r => r.type === Rule.TYPES.BEST && (r.numberOne == firstNumber || r.numberTwo == firstNumber)) !== undefined;
-        const numTwoGreatest = rulesObtained.find(r =>r.type === Rule.TYPES.BEST && (r.numberOne == secondNumber || r.numberTwo == secondNumber)) !== undefined;
+        const numOneGreatest = rulesObtained.filter(r => r.type === Rule.TYPES.BEST && (r.numberOne == firstNumber || r.numberTwo == firstNumber)).length > 0;
+        const numTwoGreatest = rulesObtained.filter(r =>r.type === Rule.TYPES.BEST && (r.numberOne == secondNumber || r.numberTwo == secondNumber)).length > 0;
 
         console.log('APPLY1', numOneGreatest, numTwoGreatest);
 
