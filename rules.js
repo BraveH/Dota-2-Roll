@@ -131,7 +131,6 @@ const rulesCache = {};
 const getRulesForNumber = (number, channelId) => {
     let cache = rulesCache[channelId] || {};
     if(cache[number]) {
-        console.log("FOUND CACHE", number);
         return cache[number];
     }
 

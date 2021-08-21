@@ -47,7 +47,7 @@ module.exports = (client, dbClient) => {
 
         let flipCount = 0;
         for(let i = 0; i < items.length; i++) {
-            if(flips(items[i][1]), channelId)
+            if(flips(items[i][1], channelId))
                 flipCount += 1;
         }
 
