@@ -224,35 +224,47 @@ module.exports = {
     },
 
     applyRule: (firstNumber, secondNumber, rulesObtained) => {
+        if(firstNumber == secondNumber)
+            return [0, `${firstNumber} = ${secondNumber}`];
+
+        if(firstNumber == '7' || secondNumber == '7')
+            console.log('APPLY', firstNumber, secondNumber);
+
         if(getValueRulesOnly(firstNumber,secondNumber).length > 0)
             return [0, `${firstNumber} has the value of ${secondNumber}`]; // they have the same value so equate
 
-        let firstNumberRules = rulesObtained.filter(r => (r.numberOne == firstNumber || r.numberTwo == firstNumber) &&
-            (r.numberOne === undefined || r.numberTwo === undefined));
-        const numOneGreatest = firstNumberRules.find(r => r.type === Rule.TYPES.BEST) !== undefined;
+        const numOneGreatest = rulesObtained.find(r => r.type === Rule.TYPES.BEST && (r.numberOne == firstNumber || r.numberTwo == firstNumber)) !== undefined;
+        const numTwoGreatest = rulesObtained.find(r =>r.type === Rule.TYPES.BEST && (r.numberOne == secondNumber || r.numberTwo == secondNumber)) !== undefined;
 
-        let secondNumberRules = rulesObtained.filter(r => !(r.numberOne === undefined || r.numberTwo === undefined) &&
-            (r.numberOne == secondNumber || r.numberTwo == secondNumber));
-        const numTwoGreatest = secondNumberRules.find(r =>r.type === Rule.TYPES.BEST) !== undefined;
+        console.log('APPLY1', numOneGreatest, numTwoGreatest);
+
+        if(numOneGreatest && numTwoGreatest)
+            return [descendingSort(firstNumber, secondNumber), undefined]
 
         let bothNumberRules = rulesObtained.filter(r => (r.numberOne == firstNumber || r.numberTwo == firstNumber) &&
             (r.numberOne == secondNumber || r.numberTwo == secondNumber));
         let betterRules = bothNumberRules.filter(r => r.type === Rule.TYPES.BETTER);
         let equalRules = bothNumberRules.filter(r => r.type === Rule.TYPES.EQUAL);
 
-        if(numOneGreatest && numTwoGreatest && firstNumber != secondNumber)
+        if(numOneGreatest || numTwoGreatest && equalRules.length > 0)
             return [descendingSort(firstNumber, secondNumber), undefined]
 
-        if(numOneGreatest || numTwoGreatest && firstNumber != secondNumber && equalRules.length > 0)
+        let twoBetter = betterRules.filter(r => r.numberTwo == secondNumber).length > 0;
+        if(numOneGreatest && twoBetter > 0)
             return [descendingSort(firstNumber, secondNumber), undefined]
 
-        if(numOneGreatest || numTwoGreatest && betterRules.length > 0)
+        let oneBetter = betterRules.filter(r => r.numberOne == firstNumber).length > 0;
+        if(numTwoGreatest && oneBetter > 0)
             return [descendingSort(firstNumber, secondNumber), undefined]
+
+        console.log('APPLY2', equalRules.length, betterRules.length);
 
         if(numOneGreatest)
             return [-1, `${firstNumber} is the greatest`];
         if(numTwoGreatest)
             return [1, `${secondNumber} is the greatest`];
+
+        console.log('APPLY3', oneBetter, twoBetter);
 
         if(equalRules.length > 0 && betterRules.length > 0)
             return [descendingSort(firstNumber, secondNumber), undefined]
@@ -261,9 +273,6 @@ module.exports = {
             return [0, `${firstNumber} = ${secondNumber}`];
 
         if(betterRules.length > 0) {
-            let oneBetter = betterRules.find(r => r.numberOne == firstNumber) !== undefined
-            let twoBetter = betterRules.find(r => r.numberOne == secondNumber) !== undefined
-
             if(oneBetter && twoBetter)
                 return [descendingSort(firstNumber, secondNumber), undefined]
             else if(oneBetter)
