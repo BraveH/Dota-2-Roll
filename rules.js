@@ -228,7 +228,7 @@ module.exports = {
             return [0, `${firstNumber} = ${secondNumber}`];
 
         if(firstNumber == '7' || secondNumber == '7')
-            console.log('APPLY', firstNumber, secondNumber);
+            console.log('APPLY', firstNumber, secondNumber, rulesObtained);
 
         if(getValueRulesOnly(firstNumber,secondNumber).length > 0)
             return [0, `${firstNumber} has the value of ${secondNumber}`]; // they have the same value so equate

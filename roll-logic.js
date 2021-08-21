@@ -149,9 +149,10 @@ module.exports = (client, dbClient) => {
         }
         else if(content.startsWith('!testSort')) {
             let rolls = content.split(' ').slice(1);
-            let [sortedRolls, flipCount] = sortRolls(rolls, 'testChannel');
-            delete rulesUsed['testChannel'];
-            channel.send(`\`sortedRolls = ${sortedRolls.map(r => r[1]).join(',')}\` & flipCount = ${flipCount} `);
+            let testChannel = 'testChannel';
+            let [sortedRolls, flipCount] = sortRolls(rolls, testChannel);
+            channel.send(`\`sortedRolls = ${sortedRolls.map(r => r[1]).join(',')}\` & flipCount = ${flipCount} & rulesUsed = ${rulesUsed[testChannel]}`);
+            delete rulesUsed[testChannel];
         }
     })
 
