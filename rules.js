@@ -198,26 +198,26 @@ module.exports = {
     },
 
     getRules: (firstNumber, secondNumber, channelId) => {
-        const result = []
+        let result = []
 
         if(firstNumber) {
             const numberOneRules = getRulesForNumber(firstNumber, channelId);
-            result.push(numberOneRules.filter(rule => rule.type === Rule.TYPES.BEST || rule.type === Rule.TYPES.TEXT ||
-                rule.type === Rule.TYPES.REROLL || rule.type === Rule.TYPES.FLIPS))
+            result = [...numberOneRules.filter(rule => rule.type === Rule.TYPES.BEST || rule.type === Rule.TYPES.TEXT ||
+                rule.type === Rule.TYPES.REROLL || rule.type === Rule.TYPES.FLIPS)];
         }
 
         if(secondNumber) {
             const numberTwoRules = getRulesForNumber(secondNumber, channelId);
-            result.push(numberTwoRules.filter(rule => rule.type === Rule.TYPES.BEST || rule.type === Rule.TYPES.TEXT ||
-                rule.type === Rule.TYPES.REROLL || rule.type === Rule.TYPES.FLIPS))
+            result = [...result, ...numberTwoRules.filter(rule => rule.type === Rule.TYPES.BEST || rule.type === Rule.TYPES.TEXT ||
+                rule.type === Rule.TYPES.REROLL || rule.type === Rule.TYPES.FLIPS)];
         }
 
         if(firstNumber && secondNumber) {
-            result.push(Object.values(rules).filter(rule =>
+            result = [...result, ...Object.values(rules).filter(rule =>
                 (rule.numberOne == firstNumber || rule.numberTwo == firstNumber) &&
                 (rule.numberOne == secondNumber || rule.numberTwo == secondNumber) &&
                 rule.type !== Rule.TYPES.VALUE
-            ));
+            )];
         }
 
         return result;
