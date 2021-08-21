@@ -92,26 +92,28 @@ const getValueRulesOnly = (numberOne, numberTwo) => {
 
 const getValueRules = (number, equatedValues) =>{
     let tempEquatedValues = equatedValues;
-    return [Object.values(rules).filter(rule => {
+    let valueRules = Object.values(rules).filter(rule => {
         let otherNumber = getOtherNumber(rule, number);
         return otherNumber !== undefined &&
             rule.type === Rule.TYPES.VALUE &&
             (rule.numberOne == number || rule.numberTwo == number) &&
-                !tempEquatedValues.includes(otherNumber)
-        })
+            !tempEquatedValues.includes(otherNumber)
+    })
         .map(rule => {
-            let otherNumber = getOtherNumber(rule, number);
+                let otherNumber = getOtherNumber(rule, number);
 
-            if(tempEquatedValues.includes(otherNumber))
-                return [];
+                if(tempEquatedValues.includes(otherNumber))
+                    return [];
 
-            let [rulesForNumber, newEquatedValues] = getRulesForNumber2(otherNumber, [...tempEquatedValues, otherNumber]);
-            tempEquatedValues = newEquatedValues;
+                let [rulesForNumber, newEquatedValues] = getRulesForNumber2(otherNumber, [...tempEquatedValues, otherNumber]);
+                tempEquatedValues = newEquatedValues;
 
-            return rulesForNumber
+                return rulesForNumber
                     .map(ruleForOtherNumber => duplicateButReplacingNumber(ruleForOtherNumber, otherNumber, number));
             }
-        ).concat(), tempEquatedValues];
+        ).concat();
+    console.log("VALUE RULES=",valueRules);
+    return [valueRules, tempEquatedValues];
 }
 
 const getRulesForNumber2 = (number, equatedValues) => {
