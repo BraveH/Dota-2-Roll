@@ -25,7 +25,9 @@ module.exports = (client, dbClient) => {
             let [sortResult, ruleUsed] = applyRule(first, second, rules);
 
             if(ruleUsed) {
-                rulesUsed[channelId] = [...(rulesUsed[channelId] || []), ruleUsed];
+                let prevRulesUsed = rulesUsed[channelId] || [];
+                if(!prevRulesUsed.includes(ruleUsed))
+                    rulesUsed[channelId] = [...prevRulesUsed, ruleUsed];
             }
 
             return sortResult;
