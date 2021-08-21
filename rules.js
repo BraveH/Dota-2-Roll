@@ -93,10 +93,11 @@ const getValueRulesOnly = (numberOne, numberTwo) => {
 const getValueRules = (number, equatedValues) =>{
     let tempEquatedValues = equatedValues;
     let valueRules = Object.values(rules).filter(rule => {
+        let otherNumber = getOtherNumber(rule, number);
         return rule.type === Rule.TYPES.VALUE &&
             (rule.numberOne == number || rule.numberTwo == number) &&
-            getOtherNumber(rule, number) !== undefined &&
-            tempEquatedValues.filter(v => v != getOtherNumber(rule, number)).length < 0
+            otherNumber !== undefined &&
+            tempEquatedValues.filter(v => v != otherNumber).length < 0
     })
     .map(rule => {
         if(!rule)
@@ -129,7 +130,9 @@ const getRulesForNumber2 = (number, equatedValues) => {
 }
 
 const getRulesForNumber = (number) => {
-    return getRulesForNumber2(number, [number])[0];
+    let rulesForNumber = getRulesForNumber2(number, [number])[0];
+    console.log("RULES:",number,rulesForNumber);
+    return rulesForNumber;
 }
 
 const descendingSort = (firstNumber, secondNumber) => {
