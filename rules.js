@@ -241,12 +241,12 @@ module.exports = {
         if(numOneGreatest && numTwoGreatest)
             return [descendingSort(firstNumber, secondNumber), undefined]
 
-        console.log('APPLY1A');
-
         let bothNumberRules = rulesObtained.filter(r => (r.numberOne == firstNumber || r.numberTwo == firstNumber) &&
             (r.numberOne == secondNumber || r.numberTwo == secondNumber));
         let betterRules = bothNumberRules.filter(r => r.type === Rule.TYPES.BETTER);
         let equalRules = bothNumberRules.filter(r => r.type === Rule.TYPES.EQUAL);
+
+        console.log('APPLY1A', equalRules);
 
         if(numOneGreatest || numTwoGreatest && equalRules.length > 0)
             return [descendingSort(firstNumber, secondNumber), undefined]
