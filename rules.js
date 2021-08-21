@@ -63,7 +63,6 @@ const getOtherNumber = (rule, number) => {
 
 const duplicateButReplacingNumber = (rule, originalNumber, newNumber) => {
     let result;
-    console.log("PRINT:", rule);
     if(rule === undefined || (rule.numberOne != originalNumber && rule.numberTwo != originalNumber)) {
         result = undefined;
     }
@@ -115,7 +114,6 @@ const getValueRules = (number, equatedValues) =>{
             .map(ruleForOtherNumber => duplicateButReplacingNumber(ruleForOtherNumber, otherNumber, number));
         }
     ).reduce((acc, arr) => [...acc, ...(arr || [])], []);
-    console.log("VALUE RULES=", valueRules);
     return [valueRules, tempEquatedValues];
 }
 
@@ -129,9 +127,16 @@ const getRulesForNumber2 = (number, equatedValues) => {
 
 }
 
-const getRulesForNumber = (number) => {
+const rulesCache = {};
+const getRulesForNumber = (number, channelId) => {
+    let cache = rulesCache[channelId] || {};
+    if(cache[number])
+        return cache[number];
+
     let rulesForNumber = getRulesForNumber2(number, [number])[0];
     console.log("RULES:",number,rulesForNumber);
+    cache[number] = rulesForNumber;
+    rulesCache[channelId] = cache;
     return rulesForNumber;
 }
 
@@ -172,32 +177,36 @@ const loadRules = () => {
 }
 
 module.exports = {
+    clearCache: (channelId) => {
+        delete rulesCache[channelId];
+        rulesCache[channelId] = {};
+    },
     findInvalidGreaterRule: (filteredRules) => {
         // any greater than rule that has same number on both sides
         return filteredRules
             .find(r => r.type === Rule.TYPES.BETTER && r.numberOne == r.numberTwo && r.numberOne !== undefined) !== undefined
     },
 
-    getDescriptions: (number) => {
-        return getRulesForNumber(number).filter(r => r.type === Rule.TYPES.TEXT).map(r => r.description);
+    getDescriptions: (number, channelId) => {
+        return getRulesForNumber(number, channelId).filter(r => r.type === Rule.TYPES.TEXT).map(r => r.description);
     },
 
-    flips: (number) => {
-        let rulesForNumber = getRulesForNumber(number);
+    flips: (number, channelId) => {
+        let rulesForNumber = getRulesForNumber(number, channelId);
         return rulesForNumber.find(r => r.type === Rule.TYPES.FLIPS) !== undefined;
     },
 
-    getRules: (firstNumber, secondNumber) => {
+    getRules: (firstNumber, secondNumber, channelId) => {
         const result = []
 
         if(firstNumber) {
-            const numberOneRules = getRulesForNumber(firstNumber);
+            const numberOneRules = getRulesForNumber(firstNumber, channelId);
             result.push(numberOneRules.filter(rule => rule.type === Rule.TYPES.BEST || rule.type === Rule.TYPES.TEXT ||
                 rule.type === Rule.TYPES.REROLL || rule.type === Rule.TYPES.FLIPS))
         }
 
         if(secondNumber) {
-            const numberTwoRules = getRulesForNumber(secondNumber);
+            const numberTwoRules = getRulesForNumber(secondNumber, channelId);
             result.push(numberTwoRules.filter(rule => rule.type === Rule.TYPES.BEST || rule.type === Rule.TYPES.TEXT ||
                 rule.type === Rule.TYPES.REROLL || rule.type === Rule.TYPES.FLIPS))
         }
@@ -265,8 +274,8 @@ module.exports = {
         return [descendingSort(firstNumber, secondNumber), undefined]
     },
 
-    needsReroll: (number) => {
-        return getRulesForNumber(number).filter(r => r.type === Rule.TYPES.REROLL).length > 0;
+    needsReroll: (number, channelId) => {
+        return getRulesForNumber(number, channelId).filter(r => r.type === Rule.TYPES.REROLL).length > 0;
     },
 
     setup: (client, dbClient) => {
@@ -328,7 +337,7 @@ module.exports = {
                 }
             }
             else if(splitContent.length === 2 && splitContent[0] === '!checkRule') {
-                let filtered = getRulesForNumber(splitContent[1]);
+                let filtered = getRulesForNumber(splitContent[1], channelId);
                 if(filtered.length > 0) {
                     let text = filtered.length === 1 ? '' : 'The rules found are:\n';
                     let length = filtered.length;

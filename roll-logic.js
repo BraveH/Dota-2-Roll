@@ -1,4 +1,4 @@
-const {getRules, applyRule, setup, flips, getDescriptions, needsReroll, findInvalidGreaterRule} = require('./rules')
+const {getRules, applyRule, setup, flips, getDescriptions, needsReroll, findInvalidGreaterRule, clearCache} = require('./rules')
 
 module.exports = (client, dbClient) => {
     setup(client, dbClient);
@@ -15,7 +15,7 @@ module.exports = (client, dbClient) => {
     const BOTID = '877352185409724486';
 
     const whichRollIsHigher = (first, second, channelId) => {
-        let rules = getRules(first,second);
+        let rules = getRules(first,second,channelId);
         if(rules.length === 0)
             return second - first; // sort descending
         else {
@@ -33,8 +33,7 @@ module.exports = (client, dbClient) => {
     }
 
     const sortRolls = (rolls, channelId) => {
-        // TODO within each sort cache the rules of each number within the list of numbers so that they don't have
-        //  to be found over and over again within the sort
+        clearCache();
 
         // Create items array
         let items = Object.keys(rolls).map(function(key) {
@@ -48,7 +47,7 @@ module.exports = (client, dbClient) => {
 
         let flipCount = 0;
         for(let i = 0; i < items.length; i++) {
-            if(flips(items[i][1]))
+            if(flips(items[i][1]), channelId)
                 flipCount += 1;
         }
 
@@ -86,7 +85,7 @@ module.exports = (client, dbClient) => {
             let roll;
             while(true) {
                 roll = Math.floor(Math.random() * 100) + 1; //50;
-                if(!needsReroll(roll))
+                if(!needsReroll(roll,channelId))
                     break;
             }
             rolls[user] = roll // between 1->100 inclusive
@@ -103,7 +102,7 @@ module.exports = (client, dbClient) => {
             let nickname = await getNickname(pair[0], guild);
 
             let roll = pair[1];
-            let descriptions = getDescriptions(roll);
+            let descriptions = getDescriptions(roll, channelId);
             rollsText += `${i+1} - ${nickname} = ${roll}${descriptions.length > 0 ? ' | ' + descriptions.join(', ') : ''}` + (i === length - 1 ? '' : '\n');
         }
         if(flipCount > 0)
