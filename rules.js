@@ -241,6 +241,8 @@ module.exports = {
         if(numOneGreatest && numTwoGreatest)
             return [descendingSort(firstNumber, secondNumber), undefined]
 
+        console.log('APPLY1A');
+
         let bothNumberRules = rulesObtained.filter(r => (r.numberOne == firstNumber || r.numberTwo == firstNumber) &&
             (r.numberOne == secondNumber || r.numberTwo == secondNumber));
         let betterRules = bothNumberRules.filter(r => r.type === Rule.TYPES.BETTER);
@@ -249,9 +251,13 @@ module.exports = {
         if(numOneGreatest || numTwoGreatest && equalRules.length > 0)
             return [descendingSort(firstNumber, secondNumber), undefined]
 
+        console.log('APPLY1B');
+
         let twoBetter = betterRules.filter(r => r.numberTwo == secondNumber).length > 0;
         if(numOneGreatest && twoBetter > 0)
             return [descendingSort(firstNumber, secondNumber), undefined]
+
+        console.log('APPLY1C');
 
         let oneBetter = betterRules.filter(r => r.numberOne == firstNumber).length > 0;
         if(numTwoGreatest && oneBetter > 0)
