@@ -93,11 +93,10 @@ const getValueRulesOnly = (numberOne, numberTwo) => {
 const getValueRules = (number, equatedValues) =>{
     let tempEquatedValues = equatedValues;
     let valueRules = Object.values(rules).filter(rule => {
-        let otherNumber = getOtherNumber(rule, number);
-        return otherNumber !== undefined &&
-            rule.type === Rule.TYPES.VALUE &&
+        return rule.type === Rule.TYPES.VALUE &&
             (rule.numberOne == number || rule.numberTwo == number) &&
-            !tempEquatedValues.includes(otherNumber)
+            getOtherNumber(rule, number) !== undefined &&
+            tempEquatedValues.filter(v => v != getOtherNumber(rule, number)).length < 0
     })
     .map(rule => {
         if(!rule)
@@ -105,7 +104,7 @@ const getValueRules = (number, equatedValues) =>{
 
         let otherNumber = getOtherNumber(rule, number);
 
-        if(tempEquatedValues.includes(otherNumber))
+        if(tempEquatedValues.filter(v => v == otherNumber).length > 0)
             return [];
 
         let [rulesForNumber, newEquatedValues] = getRulesForNumber2(otherNumber, [...tempEquatedValues, otherNumber]);
@@ -121,7 +120,7 @@ const getValueRules = (number, equatedValues) =>{
 
 const getRulesForNumber2 = (number, equatedValues) => {
     let [valueRules, newEquatedValues] = getValueRules(number, equatedValues || [number]);
-    let numberRules = Object.values(rules).filter(rule => rule.numberOne == number || rule.numberTwo == number && rule.type !== Rule.TYPES.VALUE);
+    let numberRules = Object.values(rules).filter(rule => (rule.numberOne == number || rule.numberTwo == number) && rule.type !== Rule.TYPES.VALUE);
     return [[
         ...numberRules,
         ...valueRules
