@@ -117,7 +117,7 @@ const getValueRules = (number, equatedValues) =>{
 }
 
 const getRulesForNumber2 = (number, equatedValues) => {
-    let [valueRules, newEquatedValues] = getValueRules(number, equatedValues || []);
+    let [valueRules, newEquatedValues] = getValueRules(number, equatedValues || [number]);
     let numberRules = Object.values(rules).filter(rule => rule.numberOne == number || rule.numberTwo == number && rule.type !== Rule.TYPES.VALUE);
     return [[
         ...numberRules,
