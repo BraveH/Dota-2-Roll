@@ -99,19 +99,22 @@ const getValueRules = (number, equatedValues) =>{
             (rule.numberOne == number || rule.numberTwo == number) &&
             !tempEquatedValues.includes(otherNumber)
     })
-        .map(rule => {
-                let otherNumber = getOtherNumber(rule, number);
+    .map(rule => {
+        if(!rule)
+            return [];
 
-                if(tempEquatedValues.includes(otherNumber))
-                    return [];
+        let otherNumber = getOtherNumber(rule, number);
 
-                let [rulesForNumber, newEquatedValues] = getRulesForNumber2(otherNumber, [...tempEquatedValues, otherNumber]);
-                tempEquatedValues = newEquatedValues;
+        if(tempEquatedValues.includes(otherNumber))
+            return [];
 
-                return rulesForNumber
-                    .map(ruleForOtherNumber => duplicateButReplacingNumber(ruleForOtherNumber, otherNumber, number));
-            }
-        ).reduce((acc, arr) => [...acc, ...(arr || [])], []);
+        let [rulesForNumber, newEquatedValues] = getRulesForNumber2(otherNumber, [...tempEquatedValues, otherNumber]);
+        tempEquatedValues = newEquatedValues;
+
+        return rulesForNumber
+            .map(ruleForOtherNumber => duplicateButReplacingNumber(ruleForOtherNumber, otherNumber, number));
+        }
+    ).reduce((acc, arr) => [...acc, ...(arr || [])], []);
     console.log("VALUE RULES=", valueRules);
     return [valueRules, tempEquatedValues];
 }
@@ -127,7 +130,7 @@ const getRulesForNumber2 = (number, equatedValues) => {
 }
 
 const getRulesForNumber = (number) => {
-    return getRulesForNumber2(number, [])[0];
+    return getRulesForNumber2(number, [number])[0];
 }
 
 const descendingSort = (firstNumber, secondNumber) => {
