@@ -33,7 +33,7 @@ module.exports = (client, dbClient) => {
     }
 
     const sortRolls = (rolls, channelId) => {
-        clearCache();
+        clearCache(channelId);
 
         // Create items array
         let items = Object.keys(rolls).map(function(key) {
