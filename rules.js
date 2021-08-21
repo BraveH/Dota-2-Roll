@@ -97,7 +97,7 @@ const getValueRules = (number, equatedValues) =>{
         return rule.type === Rule.TYPES.VALUE &&
             (rule.numberOne == number || rule.numberTwo == number) &&
             otherNumber !== undefined &&
-            tempEquatedValues.filter(v => v != otherNumber).length <= 0
+            tempEquatedValues.filter(v => v == otherNumber).length < 1
     })
     .map(rule => {
         if(!rule)
