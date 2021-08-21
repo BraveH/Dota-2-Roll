@@ -236,8 +236,6 @@ module.exports = {
         const numOneGreatest = rulesObtained.filter(r => r.type === Rule.TYPES.BEST && (r.numberOne == firstNumber || r.numberTwo == firstNumber)).length > 0;
         const numTwoGreatest = rulesObtained.filter(r =>r.type === Rule.TYPES.BEST && (r.numberOne == secondNumber || r.numberTwo == secondNumber)).length > 0;
 
-        console.log('APPLY1', numOneGreatest, numTwoGreatest);
-
         if(numOneGreatest && numTwoGreatest)
             return [descendingSort(firstNumber, secondNumber), undefined]
 
@@ -246,31 +244,21 @@ module.exports = {
         let betterRules = bothNumberRules.filter(r => r.type === Rule.TYPES.BETTER);
         let equalRules = bothNumberRules.filter(r => r.type === Rule.TYPES.EQUAL);
 
-        console.log('APPLY1A', equalRules);
-
-        if(numOneGreatest || numTwoGreatest && equalRules.length > 0)
+        if((numOneGreatest || numTwoGreatest) && equalRules.length > 0)
             return [descendingSort(firstNumber, secondNumber), undefined]
-
-        console.log('APPLY1B');
 
         let twoBetter = betterRules.filter(r => r.numberTwo == secondNumber).length > 0;
         if(numOneGreatest && twoBetter > 0)
             return [descendingSort(firstNumber, secondNumber), undefined]
 
-        console.log('APPLY1C');
-
         let oneBetter = betterRules.filter(r => r.numberOne == firstNumber).length > 0;
         if(numTwoGreatest && oneBetter > 0)
             return [descendingSort(firstNumber, secondNumber), undefined]
-
-        console.log('APPLY2', equalRules.length, betterRules.length);
 
         if(numOneGreatest)
             return [-1, `${firstNumber} is the greatest`];
         if(numTwoGreatest)
             return [1, `${secondNumber} is the greatest`];
-
-        console.log('APPLY3', oneBetter, twoBetter);
 
         if(equalRules.length > 0 && betterRules.length > 0)
             return [descendingSort(firstNumber, secondNumber), undefined]
