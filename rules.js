@@ -111,8 +111,8 @@ const getValueRules = (number, equatedValues) =>{
                 return rulesForNumber
                     .map(ruleForOtherNumber => duplicateButReplacingNumber(ruleForOtherNumber, otherNumber, number));
             }
-        ).concat();
-    console.log("VALUE RULES=",valueRules);
+        ).reduce((acc, arr) => [...acc, ...(arr || [])], []);
+    console.log("VALUE RULES=", valueRules);
     return [valueRules, tempEquatedValues];
 }
 
