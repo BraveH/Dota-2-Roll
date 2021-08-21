@@ -130,8 +130,10 @@ const getRulesForNumber2 = (number, equatedValues) => {
 const rulesCache = {};
 const getRulesForNumber = (number, channelId) => {
     let cache = rulesCache[channelId] || {};
-    if(cache[number])
+    if(cache[number]) {
+        console.log("FOUND CACHE", number);
         return cache[number];
+    }
 
     let rulesForNumber = getRulesForNumber2(number, [number])[0];
     console.log("RULES:",number,rulesForNumber);
