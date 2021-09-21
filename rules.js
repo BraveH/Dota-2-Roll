@@ -360,6 +360,7 @@ module.exports = {
             }
             else if(content === '!listRules') {
                 let keys = Object.keys(rules);
+                keys.sort((k1, k2) => rules[k1].numberOne - rules[k2].numberOne)
                 let keysLength = keys.length;
                 let texts = [keysLength === 0 ? 'There are no rules set!' : keysLength === 1 ? 'The only rule is:\n' : 'The rules are:\n'];
                 let j = 0
