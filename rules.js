@@ -156,7 +156,7 @@ const addRule = (id, type, numberOne, numberTwo, description) => {
 }
 
 const deleteRules = (ruleIds) => {
-    let ruleIdsString = ruleIds.map(t => `'${t}'`).join(',');
+    let ruleIdsString = ruleIds//.map(t => `'${t}'`).join(',');
     console.log("Deleting rules: ", ruleIds)
     console.log("Deleting rules 2: ", ruleIdsString)
     return db.query(DELETE_SQL, [ruleIdsString]).then(r => {
