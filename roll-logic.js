@@ -9,8 +9,9 @@ module.exports = (client, dbClient) => {
     let messageInChannel = {}
 
     let emoji = '👍';
-    let stopEmoji = '<:completeroll:890010711428837466>'//'🛑';
-    let stopEmojiText = ':completeroll:'//'🛑';
+    let stopEmojiName = 'completeroll'//'🛑';
+    let stopEmojiText = `:${stopEmojiName}:`//'🛑';
+    let stopEmoji = `<${stopEmojiText}890010711428837466>`//'🛑';
     let cancelEmoji = '❌';
     let refreshEmoji = '🎲';
     const BOTID = '877352185409724486';
@@ -168,7 +169,6 @@ module.exports = (client, dbClient) => {
         let message = reaction.message;
         let containsChannel = channelIds.includes(channelId);
         let id = message.id;
-        console.log('Emoji:', emojiTemp)
         if(containsChannel && messageInChannel[channelId] && id === messageInChannel[channelId]) {
             if (emojiTemp === emoji) {
                 if (add) {
@@ -176,7 +176,7 @@ module.exports = (client, dbClient) => {
                 } else {
                     users[channelId] = users[channelId].filter(u => u !== user.id);
                 }
-            } else if (emojiTemp === stopEmoji) {
+            } else if (emojiTemp === stopEmojiName) {
                 const channel = await client.channels.fetch(channelId);
                 await completeRoll(channelId, message.guild, channel);
             } else if (emojiTemp === cancelEmoji) {
