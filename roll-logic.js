@@ -11,7 +11,7 @@ module.exports = (client, dbClient) => {
     let emoji = '👍';
     let stopEmoji = '🛑';
     let cancelEmoji = '❌';
-    let refreshEmoji = '♻';
+    let refreshEmoji = '🎲';
     const BOTID = '877352185409724486';
 
     const whichRollIsHigher = (first, second, channelId) => {
