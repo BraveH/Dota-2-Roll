@@ -156,7 +156,9 @@ const addRule = (id, type, numberOne, numberTwo, description) => {
 }
 
 const deleteRules = (ruleIds) => {
+    console.log("Deleting rules: ", ruleIds)
     return db.query(DELETE_SQL, [ruleIds.join(',')]).then(r => {
+        console.log("DELETED. result", r);
         return Promise.resolve();
     }).catch(e => {
         console.error(e);
