@@ -9,7 +9,8 @@ module.exports = (client, dbClient) => {
     let messageInChannel = {}
 
     let emoji = '👍';
-    let stopEmoji = '🛑';
+    let stopEmoji = '<:completeroll:890010711428837466>'//'🛑';
+    let stopEmojiText = ':completeroll:'//'🛑';
     let cancelEmoji = '❌';
     let refreshEmoji = '🎲';
     const BOTID = '877352185409724486';
@@ -66,7 +67,7 @@ module.exports = (client, dbClient) => {
 
     const startRoll = async (channel, channelId) => {
         channelIds.push(channelId);
-        return channel.send(`Add a reaction to join the queue then type \`!completeRoll\` or press the ${stopEmoji} emoji.\nYou can also press the ${cancelEmoji} emoji to cancel the queue.`).then((message) => {
+        return channel.send(`Add a reaction to join the queue then type \`!completeRoll\` or press the ${stopEmojiText} emoji.\nYou can also press the ${cancelEmoji} emoji to cancel the queue.`).then((message) => {
             messageInChannel[channelId] = message.id;
             users[channelId] = []
             message.react(emoji).then(_ => {
@@ -167,6 +168,7 @@ module.exports = (client, dbClient) => {
         let message = reaction.message;
         let containsChannel = channelIds.includes(channelId);
         let id = message.id;
+        console.log('Emoji:', emojiTemp)
         if(containsChannel && messageInChannel[channelId] && id === messageInChannel[channelId]) {
             if (emojiTemp === emoji) {
                 if (add) {
