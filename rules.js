@@ -387,5 +387,5 @@ let sendMessages = (channel, messages, index) => {
         return;
 
     let text = messages[index]
-    channel.send(text).then(_ => sendList(channel, messages, index+1));
+    channel.send(text).then(_ => sendMessages(channel, messages, index+1));
 }
