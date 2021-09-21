@@ -119,7 +119,7 @@ const getValueRules = (number, equatedValues) =>{
 
 const getRulesForNumber2 = (number, equatedValues) => {
     let [valueRules, newEquatedValues] = getValueRules(number, equatedValues || [number]);
-    let numberRules = Object.values(rules).filter(rule => (rule.numberOne == number || rule.numberTwo == number) && rule.type !== Rule.TYPES.VALUE);
+    let numberRules = Object.values(rules).filter(rule => rule.numberOne == number || rule.numberTwo == number);
     return [[
         ...numberRules,
         ...valueRules
@@ -128,17 +128,17 @@ const getRulesForNumber2 = (number, equatedValues) => {
 }
 
 const rulesCache = {};
-const getRulesForNumber = (number, channelId) => {
+const getRulesForNumber = (number, channelId, includeEquates = false) => {
     let cache = rulesCache[channelId] || {};
     if(cache[number]) {
-        return cache[number];
+        return cache[number].filter(r => includeEquates ? true : r.type === Rule.TYPES.EQUAL);
     }
 
     let rulesForNumber = getRulesForNumber2(number, [number])[0];
     console.log("RULES:",number,rulesForNumber);
     cache[number] = rulesForNumber;
     rulesCache[channelId] = cache;
-    return rulesForNumber;
+    return rulesForNumber.filter(r => includeEquates ? true : r.type === Rule.TYPES.EQUAL);
 }
 
 const descendingSort = (firstNumber, secondNumber) => {
@@ -313,7 +313,7 @@ module.exports = {
                 channel.send(`Rule added. (ID = ${newUUID})`);
             }
             else if (content.startsWith('!removeRules') && splitContent.length === 2) {
-                let filtered = Object.keys(rules).map(key => [key, rules[key]]).filter(pair => pair[1].numberOne === splitContent[1] || pair[1].numberTwo === splitContent[1]) || [];
+                let filtered = Object.keys(rules).map(key => [key, rules[key]]).filter(pair => pair[1].numberOne == splitContent[1] || pair[1].numberTwo == splitContent[1]) || [];
 
                 if(filtered.length > 0) {
                     deleteRules(filtered.map(pair => pair[0])).then(_ => {
@@ -338,7 +338,7 @@ module.exports = {
                 }
             }
             else if(splitContent.length === 2 && splitContent[0] === '!checkRule') {
-                let filtered = getRulesForNumber(splitContent[1], channelId);
+                let filtered = getRulesForNumber(splitContent[1], channelId, true);
                 if(filtered.length > 0) {
                     let text = filtered.length === 1 ? '' : 'The rules found are:\n';
                     let length = filtered.length;
@@ -360,14 +360,32 @@ module.exports = {
             }
             else if(content === '!listRules') {
                 let keys = Object.keys(rules);
-                let text = keys.length === 1 ? 'The only rule is:\n' : 'The rules are:\n';
-                let length = keys.length;
+                let keysLength = keys.length;
+                let texts = [keysLength === 0 ? 'There are no rules set!' : keysLength === 1 ? 'The only rule is:\n' : 'The rules are:\n'];
+                let j = 0
+                let length = keysLength;
                 for(let i = 0; i < length; i++) {
                     let id = keys[i];
-                    text += `${rules[id].display()}\t\`[ID = ${id}]\`` + (i === length - 1 ? '' : '\n');
+                    let text = `${rules[id].display()}\t\`[ID = ${id}]\`` + (i === length - 1 ? '' : '\n');
+
+                    let currentText = texts[j]
+                    if(currentText.length + text.length > 2000) {
+                        j++
+                        texts.push('');
+                    }
+
+                    texts[j] += text;
                 }
-                channel.send(text);
+                sendMessages(channel, texts, 0);
             }
         });
     }
+}
+
+let sendMessages = (channel, messages, index) => {
+    if(index >= messages.length)
+        return;
+
+    let text = messages[index]
+    channel.send(text).then(_ => sendList(channel, messages, index+1));
 }
