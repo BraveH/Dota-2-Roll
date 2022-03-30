@@ -2,6 +2,7 @@ import {Roller} from "./Roller";
 import {Rule} from "./Rule";
 import {RulesEngine} from "./RulesEngine";
 import {Rules} from "./Rules";
+import {MessageUtils} from "./MessageUtils";
 const { v4: uuid } = require('uuid');
 
 const emoji = '👍';
@@ -285,7 +286,7 @@ export class RulesFlow {
             }
         }
 
-        channel.send(rollsText).then((message: any) => {
+        MessageUtils.sendMessagesUnsplit(channel, rollsText).then((message: any) => {
             delete this.users[channelId]
             delete this.messageInChannel[channelId]
 

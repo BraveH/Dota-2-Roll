@@ -100,7 +100,8 @@ export class RulesMessageManager {
 
                 texts[j] += text;
             }
-            MessageUtils.sendMessages(channel, texts, 0);
+
+            await MessageUtils.sendMessages(channel, texts, 0);
         }
     }
 }
