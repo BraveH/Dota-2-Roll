@@ -47,7 +47,7 @@ export class RulesFlow {
 
             const channelId = message.channel.id;
             const channel = await this.client.channels.fetch(channelId)
-            if (content === '!setupRoll') {
+            if (content === '!setupRoll' ||  content === `!roll`) {
                 if(this.channelIds.includes(channelId)) {
                     channel.send('A roll is already in progress! Please type \`!completeRoll\` to end the roll.');
                 }
@@ -59,14 +59,14 @@ export class RulesFlow {
                 if(this.channelIds.includes(channelId)) {
                     await this.completeRoll(channelId, message.guild, channel);
                 } else {
-                    channel.send('There is no roll in progress. Type \`!setupRoll\` to start a new roll.');
+                    channel.send('There is no roll in progress. Type \`!setupRoll\` or \`!roll\` to start a new roll.');
                 }
             }
             else if(content.startsWith('!testSort')) {
                 let rolls = content.split(' ').slice(1);
                 let testChannel = 'testChannel';
                 const rollers : Roller[] = rolls.map((roll: string)=>new Roller("roll"+roll, testChannel, "roll"+roll+uuid(), Number.parseInt(roll)));
-                let [sortedRolls, flipCount] = this.sortRolls(rollers, testChannel);
+                let [sortedRolls, flipCount] = this.sortRolls(rollers);
                 const rulesUsed = this.removeDuplicateRules(rollers.reduce((acc:Rule[], roller) => [...acc, ...roller.rules], [])
                 ).map(r=>r.display())
                 channel.send(`\`sortedRolls = ${(sortedRolls as Roller[]).map(r => r.roll).join(',')}\` & flipCount = ${flipCount} & rulesUsed = \n${rulesUsed.join('\n')}`);
@@ -109,7 +109,7 @@ export class RulesFlow {
                 delete this.users[channelId]
                 delete this.messageInChannel[channelId]
                 const channel = await this.client.channels.fetch(channelId);
-                channel.send(`Queue has been cancelled. Type \`!setupRoll\` or press the ${refreshEmoji} emoji to start a new queue.`).then((message:any) => {
+                channel.send(`Queue has been cancelled. Type \`!setupRoll\` or \`!roll\` or press the ${refreshEmoji} emoji to start a new queue.`).then((message:any) => {
                     message.react(refreshEmoji);
                 });
             }
@@ -119,7 +119,7 @@ export class RulesFlow {
         }
     }
 
-    private pairwiseWeightUsers(users:Roller[], channelId:string) {
+    private pairwiseWeightUsers(users:Roller[]) {
         for(let i=0; i < users.length; i++) {
             const user1 = users[i]
             user1.weight = 0;
@@ -193,25 +193,43 @@ export class RulesFlow {
         }
     }
 
-    sortRolls(users:Roller[], channelId:string) {
+    sortRolls(users:Roller[]) {
         let rulesEngine = RulesEngine.sharedInstance();
-        rulesEngine.clearCache(channelId);
 
         // Sort the array based on the second element
         // const self = this
         // users.sort(function(first, second) {
         //     return self.whichRollIsHigher(first.roll, second.roll, channelId);
         // });
-        this.pairwiseWeightUsers(users, channelId);
+        this.pairwiseWeightUsers(users);
         users.sort((u1,u2) => u2.weight - u1.weight)
 
         let flipCount = 0;
+        const swapRules = [];
         for(let i = 0; i < users.length; i++) {
             let user = users[i]
-            let shouldNumberFlipRule = rulesEngine.doesNumberFlip(user.roll, channelId);
+            let shouldNumberFlipRule = rulesEngine.doesNumberFlip(user.roll);
             if(shouldNumberFlipRule !== undefined) {
                 user.rules.push(shouldNumberFlipRule);
                 flipCount += 1;
+            }
+
+            let shouldNumberSwapRule = rulesEngine.doesNumberSwap(user.roll);
+            if(shouldNumberSwapRule !== undefined) {
+                user.rules.push(shouldNumberSwapRule);
+                swapRules.push(shouldNumberSwapRule);
+            }
+        }
+
+        const usersLength = users.length;
+        for(let i = 0; i < swapRules.length; i++) {
+            const swaps : [[number,number]]|undefined = swapRules[i].getSwapsArray();
+            if(swaps) {
+                swaps.forEach(([swap1, swap2]) => {
+                    const index1 : number = swap1 < 0 ? usersLength + swap1 : (swap1 === 0 ? 0 : swap1 - 1);
+                    const index2 : number = swap2 < 0 ? usersLength + swap2 : (swap2 === 0 ? 0 : swap2 - 1);
+                    [users[index1], users[index2]] = [users[index2], users[index1]];
+                })
             }
         }
 
@@ -247,7 +265,7 @@ export class RulesFlow {
         for(let i = 0; i < users.length; i++) {
             let user = users[i]
             while(true) {
-                let shouldNumberReRollRule = rulesEngine.shouldNumberReRoll(user.roll,channelId);
+                let shouldNumberReRollRule = rulesEngine.shouldNumberReRoll(user.roll);
                 if(shouldNumberReRollRule === undefined)
                     break;
 
@@ -256,7 +274,7 @@ export class RulesFlow {
             }
         }
 
-        let [sortedRolls, flipCount] = this.sortRolls(users, channelId);
+        let [sortedRolls, flipCount] = this.sortRolls(users);
         const rollers = sortedRolls as Roller[];
         let length = rollers.length;
 
@@ -269,7 +287,7 @@ export class RulesFlow {
             let nickname = user.name //await getNickname(pair[0], guild);
 
             let roll = user.roll;
-            let descriptions = rulesEngine.getDescriptionRules(roll, channelId);
+            let descriptions = rulesEngine.getDescriptionRules(roll);
             rollsText += `${i+1} - \`${nickname}\` = \`${roll}\`${descriptions.length > 0 ? ' | \`' + descriptions.join('\`, \`') + '\`' : ''}` + (i === length - 1 ? '' : '\n');
         }
         if(flipCount > 0)

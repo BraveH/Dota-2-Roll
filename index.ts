@@ -28,6 +28,7 @@ client.login(process.env.DISCORD_TOKEN).then((_: any) => {
                 channel.send(
                     'Dota 2 Roll Bot Help\n\n' +
                     'Rolling:\n' +
+                    '\t\`!roll\`\n' +
                     '\t\`!setupRoll\`\n' +
                     '\t\`!completeRoll\`\n\n' +
 
@@ -38,7 +39,8 @@ client.login(process.env.DISCORD_TOKEN).then((_: any) => {
                     '\t\`!addRule flip number\`\n' +
                     '\t\`!addRule reroll number\`\n' +
                     '\t\`!addRule text number description\`\n' +
-                    '\t\`!addRule value number number\`\n\n' +
+                    '\t\`!addRule value number number\`\n' +
+                    '\t\`!addRule swap number [[swap1, swap2],[swap1, swap2]]\`\n\n' +
 
                     'Remove Rules:\n' +
                     '\t\`!removeRules number\`\n' +
@@ -49,7 +51,8 @@ client.login(process.env.DISCORD_TOKEN).then((_: any) => {
                     '\t\`!checkRuleById ID\`\n\n' +
 
                     'List Rules:\n' +
-                    '\t\`!listRules\`'
+                    '\t\`!listRules\`\n' +
+                    '\t\`!rules\`'
                 );
             }
         })

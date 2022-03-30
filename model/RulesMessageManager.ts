@@ -26,8 +26,25 @@ export class RulesMessageManager {
                 await Rules.sharedInstance().addRule(newUUID, Rule.TYPES.REROLL, Number.parseInt(splitContent[2]))
             } else if (splitContent.length === 4 && splitContent[1] === 'value') {
                 await Rules.sharedInstance().addRule(newUUID, Rule.TYPES.VALUE, Number.parseInt(splitContent[2]), Number.parseInt(splitContent[3]))
+            } else if (splitContent.length > 2 && splitContent[1] === 'swap') {
+                const swapArray = splitContent.slice(3).join(' ');
+                let swap : [[number,number]]  | undefined = undefined;
+                const errorMessage = 'Invalid syntax. Swap array should be an array of an array of numbers. i.e. [[1,3],[2,4]] would cause users 1&3 to swap and 2&4 to swap.'
+                try{
+                    swap = JSON.parse(swapArray);
+                }
+                catch (e) {
+                    channel.send(errorMessage);
+                    return;
+                }
+                if(swap === undefined) {
+                    channel.send(errorMessage);
+                    return;
+                }
+
+                await Rules.sharedInstance().addRule(newUUID, Rule.TYPES.SWAP, Number.parseInt(splitContent[2]), undefined, swapArray)
             } else {
-                channel.send('Invalid syntax.\n\`!addRule greater number number\`\n\`!addRule equals number number\`\n\`!addRule greatest number\`\n\`!addRule flip number\`\n\`!addRule reroll number\`\n\`!addRule text number DESCRIPTION\`\n\`!addRule value number number\`');
+                channel.send('Invalid syntax.\n\`!addRule greater number number\`\n\`!addRule equals number number\`\n\`!addRule greatest number\`\n\`!addRule flip number\`\n\`!addRule reroll number\`\n\`!addRule text number DESCRIPTION\`\n\`!addRule value number number\`\n\`!addRule swap number [[swap1, swap2],[swap1, swap2]]\`');
                 return;
             }
             channel.send(`Rule added. (ID = ${newUUID})`);
@@ -57,7 +74,7 @@ export class RulesMessageManager {
                 channel.send('Rule not found.');
             }
         } else if (splitContent.length === 2 && splitContent[0] === '!checkRule') {
-            let filtered = RulesEngine.sharedInstance().getRulesForNumber(Number.parseInt(splitContent[1]), channelId, true);
+            let filtered = RulesEngine.sharedInstance().getRulesForNumber(Number.parseInt(splitContent[1]), true);
             if (filtered.length > 0) {
                 let text = filtered.length === 1 ? '' : 'The rules found are:\n';
                 let length = filtered.length;
@@ -76,7 +93,7 @@ export class RulesMessageManager {
             } else {
                 channel.send('Rule not found.');
             }
-        } else if (content === '!listRules') {
+        } else if (content === '!listRules' || content === '!rules') {
             let rules = Rules.allRules();
             let keys = Object.keys(rules);
             keys.sort((k1:string, k2:string) => {

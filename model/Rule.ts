@@ -29,8 +29,35 @@ export class Rule {
                 return `${this.numberOne} re-rolls`;
             case Rule.TYPES.VALUE:
                 return `${this.numberOne} has the same value as ${this.numberTwo}`;
+            case Rule.TYPES.SWAP:
+                return `${this.numberOne} causes the following swaps to occur: ${this.getSwapsString()}`
             default:
                 return `[${this.type}], [${this.numberOne}], [${this.numberTwo}], [${this.description}]`;
+        }
+    }
+
+    getNegativeSwappingString(index:number) {
+        return (index < 0 ? 'x' : '') + index
+    }
+
+    getSwapsArray = (): [[number, number]]|undefined => {
+        if(this.description) {
+            return JSON.parse(this.description)
+        } else {
+            return undefined
+        }
+    }
+
+    getSwapsString = () => {
+        const swaps: [[number, number]]|undefined  = this.getSwapsArray()
+        if(swaps) {
+            return swaps.map(swap => {
+                const swap1 = swap[0];
+                const swap2 = swap[1];
+                return `\`User#${this.getNegativeSwappingString(swap1)} swaps with User#${this.getNegativeSwappingString(swap2)}\``
+            }).join(' | ')
+        } else {
+            return 'No swaps defined!'
         }
     }
 
@@ -64,6 +91,7 @@ export namespace Rule {
         EQUAL="equal",
         FLIPS="flips",
         REROLL="reroll",
-        VALUE="value"
+        VALUE="value",
+        SWAP="swap"
     }
 }
