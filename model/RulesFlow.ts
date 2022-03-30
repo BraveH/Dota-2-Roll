@@ -206,7 +206,8 @@ export class RulesFlow {
 
         let flipCount = 0;
         const swapRules = [];
-        for(let i = 0; i < users.length; i++) {
+        const usersLength = users.length;
+        for(let i = 0; i < usersLength; i++) {
             let user = users[i]
             let shouldNumberFlipRule = rulesEngine.doesNumberFlip(user.roll);
             if(shouldNumberFlipRule !== undefined) {
@@ -215,13 +216,12 @@ export class RulesFlow {
             }
 
             let shouldNumberSwapRule = rulesEngine.doesNumberSwap(user.roll);
-            if(shouldNumberSwapRule !== undefined) {
+            if(shouldNumberSwapRule !== undefined && this.canApplySwapRule(usersLength, shouldNumberSwapRule)) {
                 user.rules.push(shouldNumberSwapRule);
                 swapRules.push(shouldNumberSwapRule);
             }
         }
 
-        const usersLength = users.length;
         for(let i = 0; i < swapRules.length; i++) {
             const swaps : [[number,number]]|undefined = swapRules[i].getSwapsArray();
             if(swaps) {
@@ -310,5 +310,18 @@ export class RulesFlow {
 
             message.react(refreshEmoji);
         });
+    }
+
+    private canApplySwapRule(usersLength: number, shouldNumberSwapRule: Rule) {
+        const swapsArray = shouldNumberSwapRule.getSwapsArray();
+        if(swapsArray) {
+            return  swapsArray.reduce<boolean>((acc, [swap1, swap2]) => {
+                const isSwap1WithinRange = swap1 < 0 ? (-swap1) <= usersLength : swap1 > 0 ? swap1 <= usersLength : true;
+                const isSwap2WithinRange = swap2 < 0 ? (-swap2) <= usersLength : swap2 > 0 ? swap2 <= usersLength : true;
+                return acc && isSwap1WithinRange && isSwap2WithinRange
+            }, true)
+        }
+
+        return false;
     }
 }
