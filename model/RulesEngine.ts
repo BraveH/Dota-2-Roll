@@ -17,8 +17,8 @@ export class RulesEngine {
             .filter(r => includeEquates ? true : r.type === Rule.TYPES.EQUAL);
     }
 
-    getDescriptionRules(number: number) {
-        return Object.values(Rules.allRules()).filter(rule => rule.numberOne == number && rule.type === Rule.TYPES.TEXT).map(r => r.description);
+    getDescriptionRules(number: number, game ?: string) {
+        return Object.values(Rules.allRules()).filter(rule => rule.numberOne == number && rule.type === Rule.TYPES.TEXT && (!game || rule.game === game)).map(r => r.description);
     }
 
     doesNumberFlip(number: number) {

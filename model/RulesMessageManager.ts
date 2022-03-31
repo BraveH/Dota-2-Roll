@@ -19,7 +19,10 @@ export class RulesMessageManager {
             } else if (splitContent.length === 3 && splitContent[1] === 'greatest') {
                 await Rules.sharedInstance().addRule(newUUID, Rule.TYPES.BEST, Number.parseInt(splitContent[2]))
             } else if (splitContent.length > 4 && splitContent[1] === 'text') {
-                await Rules.sharedInstance().addRule(newUUID, Rule.TYPES.TEXT, Number.parseInt(splitContent[2]), undefined, splitContent.slice(3).join(' '))
+                const isThirdParamGame = Rules.GAMES.includes(splitContent[3].toLowerCase());
+                const game = isThirdParamGame ? splitContent[3].toLowerCase() : undefined;
+                const description = isThirdParamGame ? splitContent.slice(4).join(' ') : splitContent.slice(3).join(' ');
+                await Rules.sharedInstance().addRule(newUUID, Rule.TYPES.TEXT, Number.parseInt(splitContent[2]), undefined, description, game)
             } else if (splitContent.length === 3 && splitContent[1] === 'flip') {
                 await Rules.sharedInstance().addRule(newUUID, Rule.TYPES.FLIPS, Number.parseInt(splitContent[2]))
             } else if (splitContent.length === 3 && splitContent[1] === 'reroll') {
@@ -44,7 +47,16 @@ export class RulesMessageManager {
 
                 await Rules.sharedInstance().addRule(newUUID, Rule.TYPES.SWAP, Number.parseInt(splitContent[2]), undefined, swapArray)
             } else {
-                channel.send('Invalid syntax.\n\`!addRule greater number number\`\n\`!addRule equals number number\`\n\`!addRule greatest number\`\n\`!addRule flip number\`\n\`!addRule reroll number\`\n\`!addRule text number DESCRIPTION\`\n\`!addRule value number number\`\n\`!addRule swap number [[swap1, swap2],[swap1, swap2]]\`');
+                channel.send('Invalid syntax.\n' +
+                    '\`!addRule greater number number\`\n' +
+                    '\`!addRule equals number number\`\n' +
+                    '\`!addRule greatest number\`\n' +
+                    '\`!addRule flip number\`\n' +
+                    '\`!addRule reroll number\`\n' +
+                    '\`!addRule text number DESCRIPTION\`\n' +
+                    '\`!addRule text number game DESCRIPTION\`\n' +
+                    '\`!addRule value number number\`\n' +
+                    '\`!addRule swap number [[swap1, swap2],[swap1, swap2]]\`');
                 return;
             }
             channel.send(`Rule added. (ID = ${newUUID})`);

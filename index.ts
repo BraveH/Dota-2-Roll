@@ -28,8 +28,8 @@ client.login(process.env.DISCORD_TOKEN).then((_: any) => {
                 channel.send(
                     'Dota 2 Roll Bot Help\n\n' +
                     'Rolling:\n' +
-                    '\t\`!roll\`\n' +
-                    '\t\`!setupRoll\`\n' +
+                    '\t\`!roll <game>\`\n' +
+                    '\t\`!setupRoll <game>\`\n' +
                     '\t\`!completeRoll\`\n\n' +
 
                     'Add Rules:\n' +
@@ -38,7 +38,8 @@ client.login(process.env.DISCORD_TOKEN).then((_: any) => {
                     '\t\`!addRule greatest number\`\n' +
                     '\t\`!addRule flip number\`\n' +
                     '\t\`!addRule reroll number\`\n' +
-                    '\t\`!addRule text number description\`\n' +
+                    '\t\`!addRule text number DESCRIPTION\`\n' +
+                    '\t\`!addRule text number game DESCRIPTION\`\n' +
                     '\t\`!addRule value number number\`\n' +
                     '\t\`!addRule swap number [[swap1, swap2],[swap1, swap2]]\`\n\n' +
 

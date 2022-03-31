@@ -1,14 +1,14 @@
 import {Rule} from "./Rule";
 import {Database} from "./Database";
-import {Roller} from "./Roller";
 
-const INSERT_SQL = 'INSERT INTO RULES(id, type, numberone, numbertwo, description) VALUES($1, $2, $3, $4, $5)';
+const INSERT_SQL = 'INSERT INTO RULES(id, type, numberone, numbertwo, description, game) VALUES($1, $2, $3, $4, $5, $6)';
 const DELETE_SQL = 'DELETE FROM RULES WHERE id = ANY($1::varchar[])';
 const SELECT_SQL = 'SELECT * FROM RULES';
 
 export class Rules {
     allRules : {[id:string] : Rule} = {}
     private static INSTANCE : Rules;
+    static GAMES : string[] = ['cs', 'csgo', 'dota', 'dota2'];
 
     static sharedInstance() : Rules {
         if(!Rules.INSTANCE)
@@ -33,12 +33,12 @@ export class Rules {
 
     loadRules() : void {
         this.db.query(SELECT_SQL).then((res: { rows: {
-            id:string, type?:string, numberone?:number, numbertwo?:number, description?:string
+            id:string, type?:string, numberone?:number, numbertwo?:number, description?:string, game?:string
         }[] }) => {
             if(res && res.rows) {
                 for(let i = 0; i < res.rows.length; i++) {
                     let row = res.rows[i];
-                    this.allRules[row.id] = new Rule(row.id, row.type as Rule.TYPES, row.numberone, row.numbertwo, row.description);
+                    this.allRules[row.id] = new Rule(row.id, row.type as Rule.TYPES, row.numberone, row.numbertwo, row.description, row.game);
                 }
             }
         }).catch(e => {
@@ -46,9 +46,9 @@ export class Rules {
         })
     }
 
-    addRule (id: string, type: Rule.TYPES, numberOne: number, numberTwo?: number, description?: string) : Promise<void> {
-        const rule = new Rule(id, type, numberOne, numberTwo, description);
-        return this.db.query(INSERT_SQL, [id, type, numberOne, numberTwo, description]).then(_ => {
+    addRule (id: string, type: Rule.TYPES, numberOne: number, numberTwo?: number, description?: string, game?: string) : Promise<void> {
+        const rule = new Rule(id, type, numberOne, numberTwo, description, game);
+        return this.db.query(INSERT_SQL, [id, type, numberOne, numberTwo, description, game]).then(_ => {
             return Promise.resolve(rule);
         }).then(rule => {
             this.allRules[id] = rule;

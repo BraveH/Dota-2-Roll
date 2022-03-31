@@ -1,10 +1,11 @@
 export class Rule {
-    constructor(id:string, type:Rule.TYPES, numberOne?:number, numberTwo?:number, description?:string) {
+    constructor(id:string, type:Rule.TYPES, numberOne?:number, numberTwo?:number, description?:string, game?:string) {
         this.id = id
         this.type = type;
         this.numberOne = numberOne;
         this.numberTwo = numberTwo;
         this.description = description;
+        this.game = game;
     }
 
     id : string;
@@ -12,6 +13,7 @@ export class Rule {
     numberOne ?: number = 0;
     numberTwo ?: number = 0;
     description ?: string = '';
+    game ?: string;
 
     display = () => {
         switch (this.type) {
@@ -54,32 +56,11 @@ export class Rule {
             return swaps.map(swap => {
                 const swap1 = swap[0];
                 const swap2 = swap[1];
-                return `\`User#${this.getNegativeSwappingString(swap1)} swaps with User#${this.getNegativeSwappingString(swap2)}\``
+                return `User#${this.getNegativeSwappingString(swap1)} swaps with User#${this.getNegativeSwappingString(swap2)}`
             }).join(' | ')
         } else {
             return 'No swaps defined!'
         }
-    }
-
-    duplicateButReplacingNumber = (originalNumber: number, newNumber: number) => {
-        let result;
-        if(this.numberOne != originalNumber && this.numberTwo != originalNumber) {
-            result = undefined;
-        }
-        else if(this.numberOne == originalNumber) {
-            result = new Rule(this.id, this.type, newNumber, this.numberTwo, this.description);
-        } else {
-            result = new Rule(this.id, this.type, this.numberOne, newNumber, this.description);
-        }
-        return result;
-    }
-
-    getOtherNumber (number:number) {
-        if(this.numberOne == number)
-            return this.numberTwo;
-        else if(this.numberTwo == number)
-            return this.numberOne;
-        else return undefined;
     }
 }
 

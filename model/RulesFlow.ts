@@ -17,6 +17,7 @@ export class RulesFlow {
 
     users : { [channelId:string]:Roller[] } = {}
     channelIds : string[] = []
+    game : { [channelId:string] : string } = {}
     messageInChannel : { [channelId:string]:string } = {}
     client
 
@@ -45,14 +46,16 @@ export class RulesFlow {
             let { content } = message
             content = content.trim();
 
+            const split = content.split(' ');
             const channelId = message.channel.id;
             const channel = await this.client.channels.fetch(channelId)
-            if (content === '!setupRoll' ||  content === `!roll`) {
+            if (split[0] === '!setupRoll' ||  split[0] === `!roll`) {
+                const game : string | undefined = split.length > 1 ? split[1].toLowerCase() : undefined;
                 if(this.channelIds.includes(channelId)) {
                     channel.send('A roll is already in progress! Please type \`!completeRoll\` to end the roll.');
                 }
                 else {
-                    await this.startRoll(channel, channelId);
+                    await this.startRoll(channel, channelId, game);
                 }
             }
             else if(content === '!completeRoll') {
@@ -63,7 +66,7 @@ export class RulesFlow {
                 }
             }
             else if(content.startsWith('!testSort')) {
-                let rolls = content.split(' ').slice(1);
+                let rolls = split.slice(1);
                 let testChannel = 'testChannel';
                 const rollers : Roller[] = rolls.map((roll: string)=>new Roller("roll"+roll, testChannel, "roll"+roll+uuid(), Number.parseInt(roll)));
                 let [sortedRolls, flipCount] = this.sortRolls(rollers);
@@ -115,7 +118,7 @@ export class RulesFlow {
             }
         } else if (emojiTemp === refreshEmoji && message.author.id === BOTID && !containsChannel) {
             const channel = await this.client.channels.fetch(channelId);
-            await this.startRoll(channel, channelId);
+            await this.startRoll(channel, channelId, this.game[channelId]);
         }
     }
 
@@ -244,8 +247,12 @@ export class RulesFlow {
             return userId;
     }
 
-    async startRoll(channel: any, channelId: string) {
+    async startRoll(channel: any, channelId: string, game?: string) {
         this.channelIds.push(channelId);
+
+        if(game)
+            this.game[channelId] = game;
+
         return channel.send(`Add a reaction to join the queue then type \`!completeRoll\` or press the ${stopEmojiText} emoji.\nYou can also press the ${cancelEmoji} emoji to cancel the queue.`).then((message:any) => {
             this.messageInChannel[channelId] = message.id;
             this.users[channelId] = []
@@ -278,6 +285,7 @@ export class RulesFlow {
         const rollers = sortedRolls as Roller[];
         let length = rollers.length;
 
+        const game = this.game[channelId]
         for(let i = 0; i < length; i++) {
             let user;
             if((flipCount as number) % 2 === 0)
@@ -287,7 +295,7 @@ export class RulesFlow {
             let nickname = user.name //await getNickname(pair[0], guild);
 
             let roll = user.roll;
-            let descriptions = rulesEngine.getDescriptionRules(roll);
+            let descriptions = rulesEngine.getDescriptionRules(roll, game);
             rollsText += `${i+1} - \`${nickname}\` = \`${roll}\`${descriptions.length > 0 ? ' | \`' + descriptions.join('\`, \`') + '\`' : ''}` + (i === length - 1 ? '' : '\n');
         }
         if(flipCount > 0)
